@@ -18,14 +18,14 @@ class SimpleFile(FileAbs):
     def __open_file(self):
         self.fileManager._open_file()
     
-    def read_first_char(self):
-        self.fileManager.read_first_char()
+    def read_first_char(self, tmp=True):
+        return self.fileManager.read_first_char(tmp)
     
-    def read_first_word(self):
-        self.fileManager.read_first_word()
+    def read_first_word(self, tmp=True):
+        return self.fileManager.read_first_word(tmp)
 
-    def read_first_sentence(self):
-        self.fileManager.read_first_sentence()
+    def read_first_sentence(self, tmp=True, contain_ender=True):
+        return self.fileManager.read_first_sentence(tmp, contain_ender)
 
-    def read_first_paragraph(self):
-        self.fileManager.read_first_paragraph()
+    def read_first_paragraph(self, tmp=True, contain_ender=False):
+        return self.fileManager.read_first_paragraph(tmp, contain_ender)

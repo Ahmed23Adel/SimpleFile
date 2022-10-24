@@ -13,4 +13,11 @@ class Location(object):
         if row <0 or col <0:
             raise Exception("Row or column is less than zero, which is not valid index")
         return LocationRowCol(row,col)
+
+    def guide_me(self,file):
+        raise NotImplementedError()
+
+    def move_to(self):
+        raise NotImplementedError()
+
             
