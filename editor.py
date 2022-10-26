@@ -7,9 +7,13 @@ class FileEdit(FileAbs):
     def __init__(self, file_loc):
         self.file_loc = file_loc
         self.location = Location.create_by_rowCol(row=0, col=0)
+        self.content = None
 
     def _open_file(self):
         self.__file = open(self.file_loc, 'r+')
+
+    def close_file(self):
+        self.__file.close()
 
     def read_first_char(self, tmp=True):
         if tmp:
@@ -99,3 +103,55 @@ class FileEdit(FileAbs):
         op = func(*args, **kwargs)
         self.location.guide_me(self.__file)
         return op
+
+    def replace_char(self, c_old, c_new, cap=False, tmp=False):
+        if len(c_old) > 1 or len(c_new) > 1:
+            raise TypeError("Your input has more than just one char, if it's the case; please consider using "
+                            "replace_word() func")
+        if tmp:
+            return self.__perform_update(self.__replace_char_tmp, c_old, c_new, cap)
+        else:
+            return self.__perform_update(self.__update_content, self.__replace_char_perm, c_old, c_new, cap)
+
+    def __replace_char_tmp(self, c_old, c_new, cap):
+        content = self.__file.read()
+        if cap:
+            content_new = content.replace(c_old, c_new)
+            content_new = content_new.replace(c_old.capitalize(), c_new)
+        else:
+            content_new = content.replace(c_old, c_new)
+        self.location.guide_me(self.__file)
+        return content_new
+
+    def __replace_char_perm(self, c_old, c_new, cap):
+        content = self.__file.read()
+        if cap:
+            content_new = content.replace(c_old, c_new)
+            content_new = content_new.replace(c_old.capitalize(), c_new)
+        else:
+            content_new = content.replace(c_old, c_new)
+        with open(self.file_loc, 'w') as file:
+            file.write(content_new)
+        self.location.guide_me(self.__file)
+        return content_new
+
+    def __update_content(self, func, *args, **kwargs):
+        new_content = func(*args, **kwargs)
+        self.content = new_content
+        return new_content
+
+    def __perform_update(self, func, *args, **kwargs):
+        self.location.move_me_to_beg(self.__file)
+        op = func(*args, **kwargs)
+        self.location.guide_me(self.__file)
+        return op
+
+    def __str__(self):
+        if self.content is None:
+            content = ""
+            with open(self.file_loc, "r") as f:
+                content = f.read()
+            self.content = content
+        # with open(self.file_loc, "r") as f:
+        #     content = f.read()
+        return self.content

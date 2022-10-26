@@ -29,8 +29,12 @@ class LocationRowCol(LocationAbs):
             self.col = col
             return
         raise TypeError("You have not specified neither row and col or index to move you to")
+
     def move_me_tmp(self, file, index):
         file.seek(index)
+
+    def move_me_to_beg(self, file):
+        self.move_me_tmp(file, 0)
 
     def __str__(self):
         return "Location by row and col, Row = {}, Col = {}".format(self.row, self.col)
