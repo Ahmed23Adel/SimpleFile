@@ -1,5 +1,5 @@
-from loc_rowCol import *
-
+from loc_row_col import *
+from location_index import *
 class Location(object):
     
     __create_key = object()
@@ -10,14 +10,23 @@ class Location(object):
 
     @classmethod
     def create_by_rowCol(cls, row, col):
+        """
+        Create Location by row and cold
+        :param index:
+        :return:LocationRowCol object
+        """
         if row <0 or col <0:
             raise Exception("Row or column is less than zero, which is not valid index")
         return LocationRowCol(row,col)
 
-    def guide_me(self,file):
-        raise NotImplementedError()
+    @classmethod
+    def create_by_index(cls, index = 0):
+        """
+        Create Location by index
+        :param index:
+        :return:LocationIndex object
+        """
+        return LocationIndex(index)
 
-    def move_to(self):
-        raise NotImplementedError()
 
             

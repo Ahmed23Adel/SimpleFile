@@ -1,4 +1,4 @@
-from locationAbs import *
+from location_abs import *
 
 
 class LocationRowCol(LocationAbs):
