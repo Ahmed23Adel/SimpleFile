@@ -1,6 +1,7 @@
 from basic_func import *
 from location import *
 from file_abs import *
+from sub_text import *
 
 
 class FileEdit(FileAbs):
@@ -14,11 +15,17 @@ class FileEdit(FileAbs):
         self.location: LocationIndex = Location.create_by_index(index = 0)
         self.content: str = None
 
+
     def _open_file(self) -> None:
         """
         Open a file for editing. you can read, write, delete, and append while opening in that mode.
         """
         self.__file = open(self.file_loc, 'r+')
+        file_len = open(self.file_loc, 'r+')
+        utf8_text = file_len.read() # TODO move it to another thread
+        unicode_data = utf8_text.encode('utf8')
+        self.file_len = len(unicode_data)
+        file_len.close()
 
     def close_file(self) -> None:
         """
@@ -190,7 +197,7 @@ class FileEdit(FileAbs):
         """
         self.location.move_me_perm(self.__file, 0)
         op = func(*args, **kwargs)
-        self.location.move_to(len(op))
+        self.location.move_to(len(op)+1)
         return op
 
     def replace_char(self, c_old: str, c_new: str, cap: bool = False, tmp: bool = False) -> str:
@@ -279,6 +286,77 @@ class FileEdit(FileAbs):
         op = func(*args, **kwargs)
         self.location.guide_me(self.__file)
         return op
+
+    def read_next_char(self, skip_non_char: bool =  False, raise_error: bool = True) -> SubText:
+        """
+        Get the next character, starting from the current position(which is sepcified by last index it went to)
+        Args:
+            None
+        """
+        if raise_error:
+            return self.__read_next_char_raise(skip_non_char)
+        else:
+            return self.__read_next_char_not_raise(skip_non_char)
+
+
+    def __read_next_char_raise(self, skip_non_char: bool) -> SubText:
+        current_char = self.__file.read(1)
+        if self.location.is_fil_ended(self.file_len):
+            raise ValueError("File ended")
+        self.location.move_by(1)
+
+        if skip_non_char and not current_char.isalpha():
+            return self.__read_next_char_raise(skip_non_char)
+        current_loc = self.location.get_location()
+        return SubText(SubTextKind.CHAR, current_char, LocationIndex(current_loc), LocationIndex(current_loc + 1))
+
+    def __read_next_char_not_raise(self, skip_non_char: bool) -> SubText:
+        current_char = self.__file.read(1)
+
+        if self.location.is_fil_ended(self.file_len):
+            return SubText(SubTextKind.FILE_ENDED)
+
+        self.location.move_by(1)
+        if skip_non_char and not current_char.isalpha():
+            return self.__read_next_char_not_raise(skip_non_char)
+        current_loc = self.location.get_location()
+        return SubText(SubTextKind.CHAR, current_char, LocationIndex(current_loc), LocationIndex(current_loc + 1))
+
+    def read_next_word(self, contain_ender: bool = True, skip_non_char: bool =  False, raise_error: bool = True ) -> str:
+        """
+        Get the next word, starting from the current position(which is sepcified by last index it went to)
+        Args:
+            None
+        """
+
+        word_lst = []
+        while True:
+            current_char = self.__file.read(1)
+            if current_char == " " or current_char == "":
+                break
+            word_lst.append(current_char)
+        return "".join(word_lst)
+
+    def get_next_sentence(self) -> str:
+        """
+        Get the next sentence, starting from the current position(which is sepcified by last index it went to)
+        The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
+        point(!)
+        Args:
+            None
+        """
+        pass
+
+    def get_next_paragraph(self) -> str:
+        """
+        Get the next paragraph, starting from the current position(which is sepcified by last index it went to)
+        Paragraph must have \n at last
+        Args:
+            None
+        """
+        pass
+
+
 
     def __str__(self):
         """

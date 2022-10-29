@@ -84,6 +84,25 @@ class SimpleFile(FileAbs):
         """
         return self.fileManager.replace_char(c_old, c_new, tmp = tmp, cap = cap)
 
+
+
+    def read_next_char(self, skip_non_char: bool =  False, raise_error: bool = True) -> str:
+        """
+        Get the next character, starting from the current position(which is sepcified by last index it went to)
+        Args:
+            None
+        """
+        return self.fileManager.read_next_char(skip_non_char,raise_error)
+
+
+    def read_next_word(self, contain_ender: bool = True, skip_non_char: bool =  False, raise_error: bool = True) -> str:
+        """
+        Get the next character, starting from the current position(which is sepcified by last index it went to)
+        Args:
+            None
+        """
+        return self.fileManager.read_next_word(contain_ender, skip_non_char, raise_error)
+
     def __str__(self):
         """
         Return the string of the file.

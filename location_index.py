@@ -62,6 +62,12 @@ class LocationIndex(LocationAbs):
             __index (int): the index to stop at.
         """
         self.index = __index
+
+    def move_by(self, __by: int) -> None:
+        self.index += __by
+
+    def is_fil_ended(self, file_length: int) -> bool:
+        return self.index == file_length
     def __str__(self) -> str:
         """
         returns the string representation of the LocationIndex object.
@@ -69,6 +75,8 @@ class LocationIndex(LocationAbs):
             None
         """
         return "Location by Index at {}".format(self.index)
+
+
 
 
 
