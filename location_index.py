@@ -1,5 +1,6 @@
 from location_abs import *
 
+
 class LocationIndex(LocationAbs):
 
     def __init__(self, index: int = 0) -> None:
@@ -64,10 +65,14 @@ class LocationIndex(LocationAbs):
         self.index = __index
 
     def move_by(self, __by: int) -> None:
+        # print("Move by ", __by)
         self.index += __by
+        # print("At ", self.index)
 
     def is_fil_ended(self, file_length: int) -> bool:
+
         return self.index == file_length
+
     def __str__(self) -> str:
         """
         returns the string representation of the LocationIndex object.
@@ -75,9 +80,3 @@ class LocationIndex(LocationAbs):
             None
         """
         return "Location by Index at {}".format(self.index)
-
-
-
-
-
-

@@ -1,6 +1,7 @@
 from editor import *
 from typing import TextIO
 from loc_row_col import *
+from sub_text import SubText
 
 
 class SimpleFile(FileAbs):
@@ -30,7 +31,7 @@ class SimpleFile(FileAbs):
         """
         self.fileManager._open_file()
 
-    def read_first_char(self, tmp=True)-> str:
+    def read_first_char(self, tmp=True) -> str:
         """
        Read the first character of the file.
        Args:
@@ -82,26 +83,23 @@ class SimpleFile(FileAbs):
         Returns:
             String copy of editied file
         """
-        return self.fileManager.replace_char(c_old, c_new, tmp = tmp, cap = cap)
+        return self.fileManager.replace_char(c_old, c_new, tmp=tmp, cap=cap)
 
-
-
-    def read_next_char(self, skip_non_char: bool =  False, raise_error: bool = True) -> str:
+    def read_next_char(self, skip_non_char: bool = False, raise_error: bool = True) -> SubText:
         """
         Get the next character, starting from the current position(which is sepcified by last index it went to)
         Args:
             None
         """
-        return self.fileManager.read_next_char(skip_non_char,raise_error)
+        return self.fileManager.read_next_char(skip_non_char, raise_error)
 
-
-    def read_next_word(self, contain_ender: bool = True, skip_non_char: bool =  False, raise_error: bool = True) -> str:
+    def read_next_word(self, skip_non_char: bool = True, raise_error: bool = True, start_new_word = True) -> SubText:
         """
         Get the next character, starting from the current position(which is sepcified by last index it went to)
         Args:
             None
         """
-        return self.fileManager.read_next_word(contain_ender, skip_non_char, raise_error)
+        return self.fileManager.read_next_word(skip_non_char, raise_error, start_new_word)
 
     def __str__(self):
         """

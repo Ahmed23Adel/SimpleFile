@@ -12,9 +12,9 @@ class FileEdit(FileAbs):
             file_loc (str): file location of the file to edit.
         """
         self.file_loc: str = file_loc
-        self.location: LocationIndex = Location.create_by_index(index = 0)
+        self.location: LocationIndex = Location.create_by_index(index=0)
         self.content: str = None
-
+        self.last_char = ""
 
     def _open_file(self) -> None:
         """
@@ -22,7 +22,7 @@ class FileEdit(FileAbs):
         """
         self.__file = open(self.file_loc, 'r+')
         file_len = open(self.file_loc, 'r+')
-        utf8_text = file_len.read() # TODO move it to another thread
+        utf8_text = file_len.read()  # TODO move it to another thread
         unicode_data = utf8_text.encode('utf8')
         self.file_len = len(unicode_data)
         file_len.close()
@@ -33,7 +33,7 @@ class FileEdit(FileAbs):
         """
         self.__file.close()
 
-    def read_first_char(self, tmp=True)-> str:
+    def read_first_char(self, tmp=True) -> str:
         """
         Read the first character of the file.
         Args:
@@ -159,7 +159,7 @@ class FileEdit(FileAbs):
             sentence_lst.append(line)
         raise EOFError("Couldn't not find \".\" nor \"?\" nor \"!\" ")
 
-    def __is_paragraph(self, s: str )-> bool:
+    def __is_paragraph(self, s: str) -> bool:
         """
         check if str is a paragraph
         The end of a complete paragraph should be marked by a period(.), a question mark(?) or an exclamation
@@ -197,7 +197,7 @@ class FileEdit(FileAbs):
         """
         self.location.move_me_perm(self.__file, 0)
         op = func(*args, **kwargs)
-        self.location.move_to(len(op)+1)
+        self.location.move_to(len(op) + 1)
         return op
 
     def replace_char(self, c_old: str, c_new: str, cap: bool = False, tmp: bool = False) -> str:
@@ -287,55 +287,66 @@ class FileEdit(FileAbs):
         self.location.guide_me(self.__file)
         return op
 
-    def read_next_char(self, skip_non_char: bool =  False, raise_error: bool = True) -> SubText:
+    def read_next_char(self, skip_non_char: bool = False, raise_error: bool = True) -> SubText:
         """
         Get the next character, starting from the current position(which is sepcified by last index it went to)
         Args:
             None
         """
         if raise_error:
-            return self.__read_next_char_raise(skip_non_char)
+            return self.__read_next_char(skip_non_char, self.__file_ended_raise)
         else:
-            return self.__read_next_char_not_raise(skip_non_char)
+            return self.__read_next_char(skip_non_char, self.__file_ended_no_raise)
 
-
-    def __read_next_char_raise(self, skip_non_char: bool) -> SubText:
-        current_char = self.__file.read(1)
+    def __read_next_char(self,skip_non_char: bool, raise_error_response):
         if self.location.is_fil_ended(self.file_len):
-            raise ValueError("File ended")
-        self.location.move_by(1)
+            return raise_error_response()
 
-        if skip_non_char and not current_char.isalpha():
-            return self.__read_next_char_raise(skip_non_char)
-        current_loc = self.location.get_location()
-        return SubText(SubTextKind.CHAR, current_char, LocationIndex(current_loc), LocationIndex(current_loc + 1))
-
-    def __read_next_char_not_raise(self, skip_non_char: bool) -> SubText:
         current_char = self.__file.read(1)
-
-        if self.location.is_fil_ended(self.file_len):
-            return SubText(SubTextKind.FILE_ENDED)
-
         self.location.move_by(1)
         if skip_non_char and not current_char.isalpha():
-            return self.__read_next_char_not_raise(skip_non_char)
+            return self.__read_next_char(skip_non_char, raise_error_response)
         current_loc = self.location.get_location()
+        self.last_char = current_char
         return SubText(SubTextKind.CHAR, current_char, LocationIndex(current_loc), LocationIndex(current_loc + 1))
 
-    def read_next_word(self, contain_ender: bool = True, skip_non_char: bool =  False, raise_error: bool = True ) -> str:
+    def read_next_word(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
         Get the next word, starting from the current position(which is sepcified by last index it went to)
         Args:
             None
-        """
 
+        """
+        if raise_error:
+            return self.__read_next_word(skip_non_char, self.__file_ended_raise)
+        else:
+            return self.__read_next_word(skip_non_char, self.__file_ended_no_raise)
+
+    def __read_next_word(self, skip_non_char: bool, raise_error_response):
+        if self.location.is_fil_ended(self.file_len):
+            return raise_error_response()
+        init_loc = self.location.get_location()
         word_lst = []
         while True:
             current_char = self.__file.read(1)
-            if current_char == " " or current_char == "":
+            if current_char == " ":
+                self.location.move_by(1)
                 break
+            if current_char == "":
+                break
+            if word_lst and not current_char.isalpha() and skip_non_char:
+                self.location.move_by(1)
+                continue
             word_lst.append(current_char)
-        return "".join(word_lst)
+        word = "".join(word_lst)
+        self.location.move_by(len(word))
+        return SubText(SubTextKind.WORD, word, LocationIndex(init_loc), LocationIndex(init_loc + len(word)))
+
+    def __file_ended_no_raise(self) -> SubText:
+        return SubText(SubTextKind.FILE_ENDED)
+
+    def __file_ended_raise(self) -> SubText:
+        raise ValueError("File ended")
 
     def get_next_sentence(self) -> str:
         """
@@ -356,8 +367,6 @@ class FileEdit(FileAbs):
         """
         pass
 
-
-
     def __str__(self):
         """
         Return the string of the file.
@@ -367,4 +376,5 @@ class FileEdit(FileAbs):
             with open(self.file_loc, "r") as f:
                 content = f.read()
             self.content = content
-        return "****** File Editor ****** at Location: {} and content is:\n{}".format(self.location.__str__(), self.content)
+        return "****** File Editor ****** at Location: {} and content is:\n{}".format(self.location.__str__(),
+                                                                                      self.content)
