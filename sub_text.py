@@ -11,7 +11,8 @@ class SubText():
         self.loc_end = loc_end
         self.kind = kind
 
-
+    def __len__(self):
+        return len(self.value)
 
     def __str__(self):
         if self.kind == SubTextKind.FILE_ENDED:

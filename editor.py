@@ -4,7 +4,7 @@ from file_abs import *
 from sub_text import *
 
 
-class FileEdit(FileAbs):
+class FileEdit(FileOpenerABC):
     def __init__(self, file_loc: str):
         """
         Open a file for editing. you can read, write, delete, and append while opening in that mode.
@@ -33,11 +33,11 @@ class FileEdit(FileAbs):
         """
         self.__file.close()
 
-    def read_first_char(self, tmp=True) -> str:
+    def read_first_char(self, tmp: bool) -> str:
         """
         Read the first character of the file.
-        Args:
-            tmp (bool): if False, it navigates the seek to the beginning of the file.
+        Arguments:
+            tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
         Returns:
             str: the first character of the file.
         """
@@ -54,11 +54,11 @@ class FileEdit(FileAbs):
         c = self.__file.read(1)
         return c
 
-    def read_first_word(self, tmp=True) -> str:
+    def read_first_word(self, tmp: bool) -> str:
         """
         Read the first word of the file.
-        Args:
-            tmp (bool): if False, it navigates the seek to the beginning of the file.
+        Arguments:
+            tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
         """
         if tmp:
             return self.__perform_read_tmp(self.__read_first_word)
@@ -74,7 +74,7 @@ class FileEdit(FileAbs):
         first_word = first_line.split(" ")[0]
         return first_word
 
-    def read_first_sentence(self, tmp=True, contain_ender=True) -> str:
+    def read_first_sentence(self, tmp: bool, contain_ender: bool) -> str:
         """
         Read the first sentence of the file.
         The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation

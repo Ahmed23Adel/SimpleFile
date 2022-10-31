@@ -1,9 +1,10 @@
 from file import *
-
-f = SimpleFile(r"/Users/ahmed/Documents/Self/simpleFile/SimpleFile/sample-c.txt")
-# print(f.read_first_char())
-# print(f.read_first_char())
-# print(f.read_first_char())
+from basic_func import *
+f = SimpleFile(r"D:\self\SimpleFile\SimpleFile\sample-c.txt", open_mode = OpenMode.READ)
+f.save_as(r"D:\self\SimpleFile\SimpleFile\tst12.txt")
+print(f.read_first_char(tmp=False))
+print(f.read_first_char())
+print(f.read_first_char())
 # print(f.read_first_word(tmp=False))
 # print(f.read_first_char())
 # print(f.read_first_sentence(contain_ender=False))
@@ -35,24 +36,24 @@ f = SimpleFile(r"/Users/ahmed/Documents/Self/simpleFile/SimpleFile/sample-c.txt"
 
 
 
-
-
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
-print(f.read_next_char(raise_error=False))
+#
+#
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))
+# print(f.read_next_char(raise_error=False))

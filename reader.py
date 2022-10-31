@@ -1,50 +1,30 @@
-from abc import ABC, abstractmethod
-from typing import overload
-from location import *
-from sub_text import *
-from typing import List
-class FileOpenerABC(ABC):
-    def __init__(self, file_loc: str):
-        self.file_loc: str = file_loc
-        self.location: LocationIndex = Location.create_by_index(index=0)
-        self.content: str = None
-        self.last_char = ""
+from file_abs import *
 
-    @abstractmethod
+
+class FileReader(FileOpenerABC):
+
+    def __init__(self, file_loc: str):
+        super(FileReader, self).__init__(file_loc)
+
     def _open_file(self) -> None:
         """
         Open a file for editing. you can read, write, delete, and append while opening in that mode.
         """
-        self._file = open(self.file_loc, 'r+')
-        file_len = open(self.file_loc, 'r+')
-        utf8_text = file_len.read()  # TODO move it to another thread
-        unicode_data = utf8_text.encode('utf8')
-        self.file_len = len(unicode_data)
-        file_len.close()
-        self.content = utf8_text
+        super(FileReader, self)._open_file()
 
-    @abstractmethod
     def close(self) -> None:
         """
        Close the file.
        """
-        self._file.close()
-        self.location=None
-        self.content=None
-        self.last_char = ""
+        super(FileReader, self).close()
+
     def save_as(self, new_name: str) -> None:
         """
-        Save the file as a new name.
+        Save the file as a new name, please give complete path
         """
-        try:
-            with open(new_name, "a+") as f:
-                f.write(self.content)
-        except PermissionError as e:
-            raise PermissionError(e,
-                                  ", The problem might be that you haven't given the complete path for the new created file")
+        super(FileReader, self).save_as(new_name)
 
-    @abstractmethod
-    def read_first_char(self, tmp: bool) -> str:
+    def read_first_char(self, tmp: bool) -> SubText:
         """
         Read the first character of the file.
         Arguments:
@@ -52,9 +32,19 @@ class FileOpenerABC(ABC):
         Returns:
             str: the first character of the file.
         """
-        pass
+        if tmp:
+            return self.__perform_read_first_tmp(self.__read_first_char)
+        return self.__perform_read_first_tmp(self.__read_first_char)
 
-    @abstractmethod
+    def __read_first_char(self) -> SubText:
+        """
+        Read the first character of the file.
+        Returns:
+            str: the first character of the file.
+        """
+        c = self._file.read(1)
+        return SubText(SubTextKind.CHAR, c, loc_start=LocationIndex(1), loc_end=LocationIndex(2))
+
     def read_last_char(self, tmp: bool) -> str:
         """
         Read the last character of the file.
@@ -65,7 +55,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_first_n_chars(self, n: int, tmp: bool) -> str:
         """
         Read the first n characters of the file.
@@ -79,7 +68,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_last_n_chars(self, n: int, tmp: bool) -> str:
         """
         Read the last n characters of the file.
@@ -93,7 +81,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_first_word(self, tmp: bool) -> str:
         """
         Read the first word of the file.
@@ -102,7 +89,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_last_word(self, tmp: bool) -> str:
         """
         Read the last word of the file.
@@ -111,7 +97,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_first_n_words(self, n: int, tmp: bool) -> str:
         """
         Read the first n words of the file.
@@ -125,7 +110,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_last_n_words(self, n: int, tmp: bool) -> str:
         """
         Read the last n words of the file.
@@ -138,7 +122,7 @@ class FileOpenerABC(ABC):
 
         """
         pass
-    @abstractmethod
+
     def read_first_sentence(self, tmp: bool, contain_ender: bool) -> str:
         """
         Read the first sentence of the file.
@@ -152,7 +136,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_last_sentence(self, tmp: bool, contain_ender: bool) -> str:
         """
         Read the last sentence of the file.
@@ -166,7 +149,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_first_n_sentences(self, n: int, tmp: bool) -> str:
         """
         Read the first n setnences of the file.
@@ -180,7 +162,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_last_n_sentences(self, n: int, tmp: bool) -> str:
         """
         Read the last n setnences of the file.
@@ -194,7 +175,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_first_paragraph(self, tmp: bool, contain_ender: bool) -> str:
         """
         Read the first paragraph of the file.
@@ -207,7 +187,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_last_paragraph(self, tmp: bool, contain_ender: bool) -> str:
         """
         Read the last paragraph of the file.
@@ -220,7 +199,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_first_n_paragraph(self, n: int, tmp: bool) -> str:
         """
         Read the first n paragraphs of the file.
@@ -234,7 +212,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_char_at(self, location: Location):
         """
         Read the character at the given location.
@@ -245,7 +222,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_word_at(self, location: Location):
         """
         Read the word at the given location.
@@ -256,7 +232,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_sentence_at(self, location: Location):
         """
         Read the sentence at the given location.
@@ -267,7 +242,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_paragraph_at(self, location: Location):
         """
         Read the paragraph at the given location.
@@ -278,7 +252,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_next_char(self, skip_non_char: bool = False, raise_error: bool = True) -> SubText:
         """
         Get the next character, starting from the current position(which is sepcified by last index it went to)
@@ -286,7 +259,7 @@ class FileOpenerABC(ABC):
             None
         """
         pass
-    @abstractmethod
+
     def read_last_n_paragraph(self, n: int, tmp: bool) -> str:
         """
         Read the last n paragraphs of the file.
@@ -300,7 +273,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read(self, start_loc: Location, end_loc: Location):
         """
         Read the text in the file starting from start_loc adn ending at end_loc.
@@ -309,8 +281,35 @@ class FileOpenerABC(ABC):
             end_loc (Location): the end location of the file.
         """
         pass
-    @abstractmethod
-    @overload
+
+    def __perform_read_first_tmp(self, func, *args, **kwargs) -> SubText:
+        """
+        Wrapper function, it calls the given function, but first it navigates to the beginning of the file
+        and then calls the given function, and finally it the return the seek to the original position.
+        Args:
+            func (function): the function to be called.
+            *args: the arguments to be passed to the function.
+            **kwargs: the keyword arguments to be passed to the function.
+        """
+        self.location.move_me_tmp(self._file, 0)
+        op = func(*args, **kwargs)
+        self.location.guide_me(self._file)
+        return op
+
+    def __perform_read_first_tmp(self, func, *args, **kwargs) -> SubText:
+        """
+        Wrapper function, it calls the given function, but first it navigates to the beginning of the file
+        and then calls the given function. and finally it the return the seek to 0.
+        Args:
+            func (function): the function to be called.
+            *args: the arguments to be passed to the function.
+            **kwargs: the keyword arguments to be passed to the function.
+        """
+        self.location.move_me_perm(self._file, 0)
+        op = func(*args, **kwargs)
+        self.location.move_to(len(op) + 1)
+        return op
+
     def replace_char(self, c_old: str, c_new: str, cap: bool, tmp: bool) -> str:
         """
         Replace a character in the file.
@@ -325,9 +324,7 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
-    @overload
-    def replace_char(self, c_old_loc: Location,c_new: str, cap: bool, tmp: bool) -> str:
+    def replace_char(self, c_old_loc: Location, c_new: str, cap: bool, tmp: bool) -> str:
         """
         Replace a character in the file.
         Arguments:
@@ -341,8 +338,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
-    @overload
     def replace_word(self, word_old: str, word_new: str, tmp: bool) -> str:
         """
         Replace a character in the file.
@@ -356,8 +351,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
-    @overload
     def replace_word(self, word_old_loc: Location, word_new: str, tmp: bool) -> str:
         """
         Replace a character in the file. it will look forward untill it finds the first " "(space).
@@ -371,8 +364,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
-    @overload
     def replace_sentence(self, sen_old: str, sen_new: str, tmp: bool) -> str:
         """
         Replace a character in the file.
@@ -386,8 +377,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
-    @overload
     def replace_sentence(self, sen_old_loc: str, sen_new: str, tmp: bool) -> str:
         """
         Replace a character in the file. it will look forward untill it finds the first "." "!" or "?"
@@ -401,8 +390,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
-    @overload
     def replace_paragraph(self, par_old: str, par_new: str, tmp: bool) -> str:
         """
         Replace a character in the file.
@@ -416,8 +403,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
-    @overload
     def replace_paragraph(self, par_old_old: Location, str, par_new: str, tmp: bool) -> str:
         """
         Replace a character in the file., it will look forward untill it finds the first "\n"
@@ -431,7 +416,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str):
         """
         Replace text starting at the given location by loc_start, and ending at the given location by loc_end.
@@ -445,7 +429,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def append(self, text):
         """
         Append text to the end of the file.
@@ -454,7 +437,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_next_word(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
         Get the next word, starting from the current position(which is sepcified by last index it went to)
@@ -468,7 +450,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def read_next_sentence(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
        Get the next sentence, starting from the current position(which is sepcified by last index it went to)
@@ -482,7 +463,6 @@ class FileOpenerABC(ABC):
        """
         pass
 
-    @abstractmethod
     def read_next_paragraph(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
        Get the next paragraph, starting from the current position(which is sepcified by last index it went to)
@@ -495,7 +475,7 @@ class FileOpenerABC(ABC):
              if False: return SubText() of type file ended
        """
         pass
-    @abstractmethod
+
     def delete_char_at(self, loc: Location, tmp: bool) -> SubText:
         """
         Delete the character at given location.
@@ -504,7 +484,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def delete_word_at(self, loc: Location, tmp: bool) -> SubText:
         """
         Delete the word at given location.
@@ -513,7 +492,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def delete_sentence_at(self, loc: Location, tmp: bool) -> SubText:
         """
         Delete the sentence at given location.
@@ -522,7 +500,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def delete_paragraph_at(self, loc: Location, tmp: bool) -> SubText:
         """
         Delete the paragraph at given location.
@@ -531,7 +508,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def delete(self, start_loc: Location, end_loc: Location, tmp: bool) -> SubText:
         """
         Delete the text between start_loc and end_loc.
@@ -541,7 +517,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def apply_on_char(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every char in the file
@@ -549,7 +524,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def apply_on_word(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every word in the file
@@ -557,7 +531,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def apply_on_sentence(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every sentence in the file
@@ -565,7 +538,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def apply_on_paragraph(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every paragraph in the file
@@ -573,7 +545,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def apply_on_row(self, func, tmp: bool, *args, **kwargs) -> SubText:
         """
         apply a function on every row of the file
@@ -581,7 +552,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def turn_all_to_capital(self, tmp: bool) -> SubText:
         """
         turn all the chars in the file to capital
@@ -590,7 +560,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def turn_all_to_small(self, tmp: bool) -> SubText:
         """
         turn all the chars in the file to capital
@@ -599,7 +568,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def capitalize_start_sentence(self, tmp: bool) -> SubText:
         """
         capitiliza the start of each sentence
@@ -608,7 +576,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def capitalize_start_paragraph(self, tmp: bool) -> SubText:
         """
         capitiliza the start of each paragraph
@@ -617,7 +584,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def capitalize_start_sen_par(self, tmp: bool) -> SubText:
         """
         capitiliza the start of each sentence and paragraph
@@ -626,7 +592,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def turn_to_capital_at(self, at: Location, tmp: bool) -> SubText:
         """
         capitiliza the start of each sentence and paragraph
@@ -635,7 +600,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def find(self, searchable: bool) -> List:
         """
         Find the first occurrence of the given string in the file.
@@ -647,7 +611,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def index(self, searchable: bool) -> List:
         """
         Find the first occurrence of the given string in the file.
@@ -659,7 +622,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def get_one_hot_encoding_chars(self, nmpy: bool, get_lst_of_char: bool) -> List:
         """
         Get the one-hot encoding of the chars in the file.
@@ -670,7 +632,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def get_one_hot_encoding_chars_dict(self, nmpy: bool, get_lst_of_char: bool) -> List:
         """
         Get the one-hot encoding of the chars in the file, as dict
@@ -681,7 +642,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def get_one_hot_encoding_words(self, nmpy: bool, get_lst_of_char: bool) -> List:
         """
         Get the one-hot encoding of the words in the file.
@@ -692,7 +652,6 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
     def get_one_hot_encoding_words_dict(self, nmpy: bool, get_lst_of_char: bool) -> List:
         """
         Get the one-hot encoding of the words in the file, as dict
@@ -702,6 +661,3 @@ class FileOpenerABC(ABC):
             Numpy array of
         """
         pass
-
-
-
