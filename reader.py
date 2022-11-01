@@ -1,5 +1,5 @@
 from file_abs import *
-
+from typing import  Tuple
 
 class FileReader(FileOpenerABC):
 
@@ -81,13 +81,27 @@ class FileReader(FileOpenerABC):
         """
         pass
 
-    def read_first_word(self, tmp: bool) -> str:
+    def read_first_word(self, tmp: bool, skip_non_char: bool) -> SubText:
         """
         Read the first word of the file.
         Arguments:
             tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
         """
-        pass
+        if tmp:
+            return self.__perform_read_first_tmp(self.__read_first_word, skip_non_char)
+        return self.__perform_read_first_perm(self.__read_first_word, skip_non_char)
+
+    def __read_first_word(self, skip_non_char: bool) -> SubText:
+        """
+        Read the first word of the file.
+        Returns:
+            str: the first word of the file.
+        """
+        first_line = next(iter(self._file))
+        first_word = first_line.split(" ")[0]
+        while skip_non_char and not first_word[-1].isalpha():
+            first_word = first_word [:-1]
+        return SubText(SubTextKind.WORD, first_word, LocationIndex(0), LocationIndex(len(first_word)) )
 
     def read_last_word(self, tmp: bool) -> str:
         """
@@ -123,7 +137,7 @@ class FileReader(FileOpenerABC):
         """
         pass
 
-    def read_first_sentence(self, tmp: bool, contain_ender: bool) -> str:
+    def read_first_sentence(self, tmp: bool, contain_ender: bool) -> SubText:
         """
         Read the first sentence of the file.
         The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
@@ -134,7 +148,48 @@ class FileReader(FileOpenerABC):
         Returns:
             str: the first sentence of the file.
         """
-        pass
+        if tmp:
+            return self.__perform_read_first_tmp(self.__read_first_sentence, contain_ender)
+        return self.__perform_read_first_perm(self.__read_first_sentence, contain_ender)
+
+    def __read_first_sentence(self, contain_ender: bool) -> SubText:
+        """
+        Read the first sentence of the file.
+        The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
+        point(!)
+        Args:
+            contain_ender (bool): if True, it returns the sentence till ./!/?
+        """
+        sentence_lst = []
+        while True:
+            try:
+                line = next(iter(self._file))
+            except:
+                break
+            is_sentence, i = self.__is_sentence(line)
+            if is_sentence:
+                sentence_lst.append(line)
+                sentence = "".join(sentence_lst)
+                fina_sen = sentence[:i + 1 if contain_ender else i]
+                return SubText(SubTextKind.SENTENCE, fina_sen, LocationIndex(0), LocationIndex(len(fina_sen)))
+            sentence_lst.append(line)
+        raise EOFError("Couldn't not find \".\" nor \"?\" nor \"!\" ")
+
+    def __is_sentence(self, s: str) -> Tuple:
+        """
+        The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
+        point(!)
+        Args:
+            s (str): a sentence.
+        Returns:
+            bool: True if s is a sentence, False otherwise
+        """
+        if "." in s or "?" in s or "!" in s:
+            dot_index, ques_index, exc_index = s.find("."), s.find("?"), s.find("!")
+            final_index = dot_index if dot_index != -1 else ques_index if ques_index != -1 else exc_index
+            return True, final_index
+        return False, -1
+
 
     def read_last_sentence(self, tmp: bool, contain_ender: bool) -> str:
         """
@@ -175,7 +230,7 @@ class FileReader(FileOpenerABC):
         """
         pass
 
-    def read_first_paragraph(self, tmp: bool, contain_ender: bool) -> str:
+    def read_first_paragraph(self, tmp: bool, contain_ender: bool) -> SubText:
         """
         Read the first paragraph of the file.
         Paragraph must have \n at last
@@ -185,7 +240,45 @@ class FileReader(FileOpenerABC):
         Returns:
             str: the first paragraph of the file.
         """
-        pass
+        if tmp:
+            return self.__perform_read_first_tmp(self.__read_first_paragraph, contain_ender)
+        return self.__perform_read_first_perm(self.__read_first_paragraph, contain_ender)
+
+    def __read_first_paragraph(self, contain_ender: bool = True) -> SubText:
+        """
+        Read the first paragraph of the file.
+        Paragraph must have \n at last
+        Args:
+            contain_ender (bool): if True, it returns the sentence till \n.
+        """
+        sentence_lst = []
+        while True:
+            try:
+                line = next(iter(self._file))
+            except:
+                break
+            is_paragraph, i = self.__is_paragraph(line)
+            if is_paragraph:
+                sentence_lst.append(line)
+                sentence = "".join(sentence_lst)
+                final_par = sentence[:i + 1 if contain_ender else i]
+                return SubText(SubTextKind.PARAGRAPH, final_par, LocationIndex(0), LocationIndex(len(final_par)))
+            sentence_lst.append(line)
+
+        raise EOFError("Couldn't not find \"\\n\"")
+
+    def __is_paragraph(self, s: str) -> Tuple:
+        """
+        check if str is a paragraph
+        The end of a complete paragraph should be marked by a period(.), a question mark(?) or an exclamation
+        point(!)
+        Args:
+            s (str): a sentence.
+        """
+        if "\n" in s:
+            dot_index = s.find("\n")
+            return True, dot_index
+        return False, -1
 
     def read_last_paragraph(self, tmp: bool, contain_ender: bool) -> str:
         """
@@ -258,7 +351,55 @@ class FileReader(FileOpenerABC):
         Args:
             None
         """
-        pass
+        if raise_error:
+            return self.__read_next_char(skip_non_char, self.__file_ended_raise)
+        else:
+            return self.__read_next_char(skip_non_char, self.__file_ended_no_raise)
+
+    def __read_next_char(self,skip_non_char: bool, raise_error_response):
+        if self.location.is_fil_ended(self.file_len):
+            return raise_error_response()
+
+        current_char = self._file.read(1)
+        self.location.move_by(1)
+        if skip_non_char and not current_char.isalpha():
+            return self.__read_next_char(skip_non_char, raise_error_response)
+        current_loc = self.location.get_location()
+        self.last_char = current_char
+        return SubText(SubTextKind.CHAR, current_char, LocationIndex(current_loc), LocationIndex(current_loc + 1))
+
+
+    def read_next_word(self, skip_non_char: bool, raise_error: bool, start_new_word: bool) -> SubText:
+        """
+        Get the next word, starting from the current position(which is sepcified by last index it went to)
+        Args:
+            None
+
+        """
+        if raise_error:
+            return self.__read_next_word(skip_non_char, self.__file_ended_raise)
+        else:
+            return self.__read_next_word(skip_non_char, self.__file_ended_no_raise)
+
+    def __read_next_word(self, skip_non_char: bool, raise_error_response):
+        if self.location.is_fil_ended(self.file_len):
+            return raise_error_response()
+        init_loc = self.location.get_location()
+        word_lst = []
+        while True:
+            current_char = self._file.read(1)
+            if current_char == " ":
+                self.location.move_by(1)
+                break
+            if current_char == "":
+                break
+            if word_lst and not current_char.isalpha() and skip_non_char:
+                self.location.move_by(1)
+                continue
+            word_lst.append(current_char)
+        word = "".join(word_lst)
+        self.location.move_by(len(word))
+        return SubText(SubTextKind.WORD, word, LocationIndex(init_loc), LocationIndex(init_loc + len(word)))
 
     def read_last_n_paragraph(self, n: int, tmp: bool) -> str:
         """
@@ -296,7 +437,7 @@ class FileReader(FileOpenerABC):
         self.location.guide_me(self._file)
         return op
 
-    def __perform_read_first_tmp(self, func, *args, **kwargs) -> SubText:
+    def __perform_read_first_perm(self, func, *args, **kwargs) -> SubText:
         """
         Wrapper function, it calls the given function, but first it navigates to the beginning of the file
         and then calls the given function. and finally it the return the seek to 0.
@@ -322,7 +463,7 @@ class FileReader(FileOpenerABC):
             str: the replaced string.
 
         """
-        pass
+        raise TypeError("Replacing is not allowed while using Reader model")
 
     def replace_char(self, c_old_loc: Location, c_new: str, cap: bool, tmp: bool) -> str:
         """
@@ -437,18 +578,6 @@ class FileReader(FileOpenerABC):
         """
         pass
 
-    def read_next_word(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
-        """
-        Get the next word, starting from the current position(which is sepcified by last index it went to)
-        Args:
-            skip_non_char: if true, the returned string doens't contain "." or "," for exampole. as it sticks
-            to the word
-            raise_error: if i hit the end of the file, it describes how you should handle it,
-             if True: raise an exception
-             if False: return SubText() of type file ended
-
-        """
-        pass
 
     def read_next_sentence(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
@@ -661,3 +790,10 @@ class FileReader(FileOpenerABC):
             Numpy array of
         """
         pass
+
+
+    def __file_ended_no_raise(self) -> SubText:
+        return SubText(SubTextKind.FILE_ENDED)
+
+    def __file_ended_raise(self) -> SubText:
+        raise ValueError("File ended")

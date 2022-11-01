@@ -94,7 +94,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def read_first_word(self, tmp: bool) -> str:
+    def read_first_word(self, tmp: bool, skip_non_char: bool) -> SubText:
         """
         Read the first word of the file.
         Arguments:
@@ -167,7 +167,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def read_first_n_sentences(self, n: int, tmp: bool) -> str:
+    def read_first_n_sentences(self, n: int, tmp: bool) -> SubText:
         """
         Read the first n setnences of the file.
         Arguments:

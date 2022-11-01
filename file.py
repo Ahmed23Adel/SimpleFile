@@ -34,36 +34,7 @@ class SimpleFile(FileOpenerABC):
         """
         self.fileManager._open_file()
 
-    def read_first_word(self, tmp=True) -> str:
-        """
-        Read the first word of the file.
-        Args:
-            tmp (bool): if False, it navigates the seek to the beginning of the file.
-        """
-        return self.fileManager.read_first_word(tmp)
 
-    def read_first_sentence(self, tmp=True, contain_ender=True) -> str:
-        """
-       Read the first sentence of the file.
-       The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
-       point(!)
-       Args:
-           tmp (bool): if False, it navigates the seek to the beginning of the file.
-           contain_ender (bool): if True, it returns the sentence till ./!/?
-       Returns:
-           str: the first sentence of the file.
-       """
-        return self.fileManager.read_first_sentence(tmp, contain_ender)
-
-    def read_first_paragraph(self, tmp: bool, contain_ender: bool) -> str:
-        """
-        Read the first paragraph of the file.
-        Paragraph must have \n at last
-        Args:
-            tmp (bool): if False, it navigates the seek to the beginning of the file.
-            contain_ender (bool): if True, it returns the sentence till \n.
-        """
-        return self.fileManager.read_first_paragraph(tmp, contain_ender)
 
     def replace_char(self, c_old: str, c_new: str, cap: bool = False, tmp: bool = False) -> str:
         """
@@ -78,21 +49,6 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.replace_char(c_old, c_new, tmp=tmp, cap=cap)
 
-    def read_next_char(self, skip_non_char: bool = False, raise_error: bool = True) -> SubText:
-        """
-        Get the next character, starting from the current position(which is sepcified by last index it went to)
-        Args:
-            None
-        """
-        return self.fileManager.read_next_char(skip_non_char, raise_error)
-
-    def read_next_word(self, skip_non_char: bool = True, raise_error: bool = True, start_new_word = True) -> SubText:
-        """
-        Get the next character, starting from the current position(which is sepcified by last index it went to)
-        Args:
-            None
-        """
-        return self.fileManager.read_next_word(skip_non_char, raise_error, start_new_word)
 
     def __str__(self):
         """
@@ -185,13 +141,13 @@ class SimpleFile(FileOpenerABC):
         pass
 
     
-    def read_first_word(self, tmp: bool) -> str:
+    def read_first_word(self, tmp: bool = True, skip_non_char: bool = True) -> str:
         """
         Read the first word of the file.
         Arguments:
             tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
         """
-        pass
+        return self.fileManager.read_first_word(tmp, skip_non_char)
 
     
     def read_last_word(self, tmp: bool) -> str:
@@ -231,7 +187,7 @@ class SimpleFile(FileOpenerABC):
         pass
 
     
-    def read_first_sentence(self, tmp: bool, contain_ender: bool) -> str:
+    def read_first_sentence(self, tmp: bool =  True, contain_ender: bool = True) -> SubText:
         """
         Read the first sentence of the file.
         The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
@@ -242,7 +198,7 @@ class SimpleFile(FileOpenerABC):
         Returns:
             str: the first sentence of the file.
         """
-        pass
+        return self.fileManager.read_first_sentence(tmp, contain_ender)
 
     
     def read_last_sentence(self, tmp: bool, contain_ender: bool) -> str:
@@ -287,7 +243,7 @@ class SimpleFile(FileOpenerABC):
         pass
 
     
-    def read_first_paragraph(self, tmp: bool, contain_ender: bool) -> str:
+    def read_first_paragraph(self, tmp: bool = True, contain_ender: bool = True) -> str:
         """
         Read the first paragraph of the file.
         Paragraph must have \n at last
@@ -297,7 +253,7 @@ class SimpleFile(FileOpenerABC):
         Returns:
             str: the first paragraph of the file.
         """
-        pass
+        return self.fileManager.read_first_paragraph(tmp, contain_ender)
 
     
     def read_last_paragraph(self, tmp: bool, contain_ender: bool) -> str:
@@ -377,7 +333,7 @@ class SimpleFile(FileOpenerABC):
         Args:
             None
         """
-        pass
+        return self.fileManager.read_next_char(skip_non_char, raise_error)
 
     
     def read_last_n_paragraph(self, n: int, tmp: bool) -> str:
@@ -544,7 +500,7 @@ class SimpleFile(FileOpenerABC):
         pass
 
     
-    def read_next_word(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
+    def read_next_word(self, skip_non_char: bool = True, raise_error: bool = False, start_new_word: bool = True) -> SubText:
         """
         Get the next word, starting from the current position(which is sepcified by last index it went to)
         Args:
@@ -555,9 +511,9 @@ class SimpleFile(FileOpenerABC):
              if False: return SubText() of type file ended
 
         """
-        pass
+        return self.fileManager.read_next_word(skip_non_char, raise_error, start_new_word)
 
-    
+
     def read_next_sentence(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
        Get the next sentence, starting from the current position(which is sepcified by last index it went to)
