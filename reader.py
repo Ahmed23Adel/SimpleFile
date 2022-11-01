@@ -1,5 +1,6 @@
 from file_abs import *
-from typing import  Tuple
+from typing import Tuple
+
 
 class FileReader(FileOpenerABC):
 
@@ -42,20 +43,9 @@ class FileReader(FileOpenerABC):
         Returns:
             str: the first character of the file.
         """
-        c = self._file.read(1)
-        return SubText(SubTextKind.CHAR, c, loc_start=LocationIndex(1), loc_end=LocationIndex(2))
+        return self.__read_first_n_chars(1)
 
-    def read_last_char(self, tmp: bool) -> str:
-        """
-        Read the last character of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
-        Returns:
-            str: the first character of the file.
-        """
-        pass
-
-    def read_first_n_chars(self, n: int, tmp: bool) -> str:
+    def read_first_n_chars(self, n: int, tmp: bool) -> SubText:
         """
         Read the first n characters of the file.
         Arguments:
@@ -66,11 +56,13 @@ class FileReader(FileOpenerABC):
             str: the first n characters of the file.
 
         """
-        pass
+        if tmp:
+            return self.__perform_read_first_tmp(self.__read_first_n_chars, n)
+        return self.__perform_read_first_tmp(self.__read_first_n_chars, n)
 
-    def read_last_n_chars(self, n: int, tmp: bool) -> str:
+    def __read_first_n_chars(self, n: int) -> SubText:
         """
-        Read the last n characters of the file.
+        Read the first n characters of the file.
         Arguments:
             tmp (bool): if False, it navigates the seek to the beginning of the file,
             if true, it will not.
@@ -79,13 +71,16 @@ class FileReader(FileOpenerABC):
             str: the first n characters of the file.
 
         """
-        pass
+        c = self._file.read(n)
+        return SubText(SubTextKind.CHAR, c, loc_start=LocationIndex(1), loc_end=LocationIndex(2))
 
     def read_first_word(self, tmp: bool, skip_non_char: bool) -> SubText:
         """
         Read the first word of the file.
         Arguments:
             tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
+            skip_non_char (bool): ex, word is "Phantom," if True it returns "Phantom" without"," if False,
+            it returns it with ",".
         """
         if tmp:
             return self.__perform_read_first_tmp(self.__read_first_word, skip_non_char)
@@ -100,42 +95,45 @@ class FileReader(FileOpenerABC):
         first_line = next(iter(self._file))
         first_word = first_line.split(" ")[0]
         while skip_non_char and not first_word[-1].isalpha():
-            first_word = first_word [:-1]
-        return SubText(SubTextKind.WORD, first_word, LocationIndex(0), LocationIndex(len(first_word)) )
+            first_word = first_word[:-1]
+        return SubText(SubTextKind.WORD, first_word, LocationIndex(0), LocationIndex(len(first_word)))
 
-    def read_last_word(self, tmp: bool) -> str:
-        """
-        Read the last word of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
-        """
-        pass
-
-    def read_first_n_words(self, n: int, tmp: bool) -> str:
+    def read_first_n_words(self, n: int, tmp: bool, skip_non_char: bool) -> SubText:
         """
         Read the first n words of the file.
         Arguments:
             tmp (bool): if False, it navigates the seek to the beginning of the file,
             if true, it will not.
             n: number of words to read from the file.
+            skip_non_char (bool): ex, word is "Phantom," if True it returns "Phantom" without"," if False,
+            it returns it with ",".
         Returns:
             str: the first n words of the file.
 
         """
-        pass
+        if tmp:
+            return self.__perform_read_first_tmp(self.__read_first_n_words, n, skip_non_char)
+        return self.__perform_read_first_perm(self.__read_first_n_words, n, skip_non_char)
 
-    def read_last_n_words(self, n: int, tmp: bool) -> str:
+    def __read_first_n_words(self, n: int, skip_non_char: bool) -> SubText:
         """
-        Read the last n words of the file.
+        Read the first n words of the file.
         Arguments:
             tmp (bool): if False, it navigates the seek to the beginning of the file,
             if true, it will not.
             n: number of words to read from the file.
+            skip_non_char (bool): ex, word is "Phantom," if True it returns "Phantom" without"," if False,
+            it returns it with ",".
         Returns:
             str: the first n words of the file.
 
         """
-        pass
+        first_line = next(iter(self._file))
+        first_n_word = first_line.split(" ")[:n]
+        while skip_non_char and not first_n_word[-1].isalpha():
+            first_n_word[-1] = first_n_word[-1][:-1]
+        final_words = " ".join(first_n_word)
+        return SubText(SubTextKind.WORD, final_words, LocationIndex(0), LocationIndex(len(final_words)))
 
     def read_first_sentence(self, tmp: bool, contain_ender: bool) -> SubText:
         """
@@ -160,7 +158,7 @@ class FileReader(FileOpenerABC):
         Args:
             contain_ender (bool): if True, it returns the sentence till ./!/?
         """
-        sentence_lst = []
+        line_lst = []
         while True:
             try:
                 line = next(iter(self._file))
@@ -168,11 +166,64 @@ class FileReader(FileOpenerABC):
                 break
             is_sentence, i = self.__is_sentence(line)
             if is_sentence:
-                sentence_lst.append(line)
-                sentence = "".join(sentence_lst)
-                fina_sen = sentence[:i + 1 if contain_ender else i]
-                return SubText(SubTextKind.SENTENCE, fina_sen, LocationIndex(0), LocationIndex(len(fina_sen)))
-            sentence_lst.append(line)
+                sentence = line[:i + 1 if contain_ender else i]
+                line_lst.append(sentence)
+                fina_sentence = "".join(line_lst)
+                return SubText(SubTextKind.SENTENCE, fina_sentence, LocationIndex(0), LocationIndex(len(fina_sentence)))
+            else:
+                line_lst.append(line)
+        raise EOFError("Couldn't not find \".\" nor \"?\" nor \"!\" ")
+
+    def read_first_n_sentences(self, n: int, tmp: bool, contain_ender: bool) -> SubText:
+        """
+        Read the first n setnences of the file.
+        Arguments:
+            tmp (bool): if False, it navigates the seek to the beginning of the file,
+            if true, it will not.
+            n: number of setnences to read from the file.
+            contain_ender (bool): if True, it returns the sentence till "." or "?" or "!".
+        Returns:
+            str: the first n setnences of the file.
+
+        """
+        if tmp:
+            return self.__perform_read_first_tmp(self.__read_first_n_sentences, n, contain_ender)
+        return self.__perform_read_first_perm(self.__read_first_n_sentences, n, contain_ender)
+
+    def __read_first_n_sentences(self, n: int, contain_ender: bool) -> SubText:
+        """
+        Read the first n setnences of the file.
+        Arguments:
+            tmp (bool): if False, it navigates the seek to the beginning of the file,
+            if true, it will not.
+            n: number of setnences to read from the file.
+            contain_ender (bool): if True, it returns the sentence till "." or "?" or "!".
+        Returns:
+            str: the first n setnences of the file.
+
+        """
+        line_lst = []
+        sentence_lst = []
+        counter_sentences = 0
+        while True:
+            try:
+                line = next(iter(self._file))
+            except:
+                break
+            is_sentence, i = self.__is_sentence(line)
+            if is_sentence:
+                sentence = line
+                line_lst.append(sentence)
+                fina_sentence = "".join(line_lst)
+                sentence_lst.append(fina_sentence)
+                counter_sentences += 1
+                line_lst = []
+            else:
+                line_lst.append(line)
+            if counter_sentences == n:
+                final_n_sens = "".join(sentence_lst)
+                final_n_sens = final_n_sens[: -1 if contain_ender else -2]
+                return SubText(SubTextKind.SENTENCE, final_n_sens, LocationIndex(0), LocationIndex(len(final_n_sens)) )
         raise EOFError("Couldn't not find \".\" nor \"?\" nor \"!\" ")
 
     def __is_sentence(self, s: str) -> Tuple:
@@ -185,50 +236,14 @@ class FileReader(FileOpenerABC):
             bool: True if s is a sentence, False otherwise
         """
         if "." in s or "?" in s or "!" in s:
-            dot_index, ques_index, exc_index = s.find("."), s.find("?"), s.find("!")
-            final_index = dot_index if dot_index != -1 else ques_index if ques_index != -1 else exc_index
+            dot_index, ques_index, exec_index = s.find("."), s.find("?"), s.find("!")
+
+            is_valid = lambda x: True if x != -1 else False
+            indxs = [dot_index, ques_index, exec_index]
+            indxs = [x for x in indxs if is_valid(x)]
+            final_index = min(indxs)
             return True, final_index
         return False, -1
-
-
-    def read_last_sentence(self, tmp: bool, contain_ender: bool) -> str:
-        """
-        Read the last sentence of the file.
-        The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
-        point(!)
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file.
-            contain_ender (bool): if True, it returns the sentence till ./!/?
-        Returns:
-            str: the first sentence of the file.
-        """
-        pass
-
-    def read_first_n_sentences(self, n: int, tmp: bool) -> str:
-        """
-        Read the first n setnences of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file,
-            if true, it will not.
-            n: number of setnences to read from the file.
-        Returns:
-            str: the first n setnences of the file.
-
-        """
-        pass
-
-    def read_last_n_sentences(self, n: int, tmp: bool) -> str:
-        """
-        Read the last n setnences of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file,
-            if true, it will not.
-            n: number of setnences to read from the file.
-        Returns:
-            str: the first n setnences of the file.
-
-        """
-        pass
 
     def read_first_paragraph(self, tmp: bool, contain_ender: bool) -> SubText:
         """
@@ -280,19 +295,7 @@ class FileReader(FileOpenerABC):
             return True, dot_index
         return False, -1
 
-    def read_last_paragraph(self, tmp: bool, contain_ender: bool) -> str:
-        """
-        Read the last paragraph of the file.
-        Paragraph must have \n at last
-        Args:
-            tmp (bool): if False, it navigates the seek to the beginning of the file.
-            contain_ender (bool): if True, it returns the sentence till \n.
-        Returns:
-            str: the first paragraph of the file.
-        """
-        pass
-
-    def read_first_n_paragraph(self, n: int, tmp: bool) -> str:
+    def read_first_n_paragraph(self, n: int, tmp: bool, contain_ender: bool) -> SubText:
         """
         Read the first n paragraphs of the file.
         Arguments:
@@ -303,7 +306,35 @@ class FileReader(FileOpenerABC):
             str: the first n paragraphs of the file.
 
         """
-        pass
+        if tmp:
+            return self.__perform_read_first_tmp(self.__read_first_n_paragraph, n, contain_ender)
+        return self.__perform_read_first_perm(self.__read_first_n_paragraph, n, contain_ender)
+
+    def __read_first_n_paragraph(self, n: int, contain_ender: bool) -> SubText:
+        sentence_lst = []
+        par_lst = []
+        par_counter =0
+        while True:
+            try:
+                line = next(iter(self._file))
+            except:
+                break
+            is_paragraph, i = self.__is_paragraph(line)
+            if is_paragraph:
+                sentence_lst.append(line)
+                sentence = "".join(sentence_lst)
+                final_par = sentence
+                par_lst.append(final_par)
+                par_counter += 1
+                sentence_lst = []
+            else:
+                sentence_lst.append(line)
+            if par_counter == n:
+                final_par = "".join(par_lst)
+                final_par = final_par[: -1 if contain_ender else -2]
+                return SubText(SubTextKind.PARAGRAPH, final_par, LocationIndex(0), LocationIndex(len(final_par)))
+
+        raise ValueError("Couldn't find paragraph")
 
     def read_char_at(self, location: Location):
         """
@@ -356,7 +387,7 @@ class FileReader(FileOpenerABC):
         else:
             return self.__read_next_char(skip_non_char, self.__file_ended_no_raise)
 
-    def __read_next_char(self,skip_non_char: bool, raise_error_response):
+    def __read_next_char(self, skip_non_char: bool, raise_error_response):
         if self.location.is_fil_ended(self.file_len):
             return raise_error_response()
 
@@ -367,7 +398,6 @@ class FileReader(FileOpenerABC):
         current_loc = self.location.get_location()
         self.last_char = current_char
         return SubText(SubTextKind.CHAR, current_char, LocationIndex(current_loc), LocationIndex(current_loc + 1))
-
 
     def read_next_word(self, skip_non_char: bool, raise_error: bool, start_new_word: bool) -> SubText:
         """
@@ -577,7 +607,6 @@ class FileReader(FileOpenerABC):
             text (str): the text to append.
         """
         pass
-
 
     def read_next_sentence(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
@@ -790,7 +819,6 @@ class FileReader(FileOpenerABC):
             Numpy array of
         """
         pass
-
 
     def __file_ended_no_raise(self) -> SubText:
         return SubText(SubTextKind.FILE_ENDED)

@@ -26,58 +26,14 @@ class SimpleFile(FileOpenerABC):
             self.fileManager = FileEdit(self.file_loc)
         if self.open_mode == OpenMode.READ:
             self.fileManager = FileReader(self.file_loc)
-        self.__open_file()
-
-    def __open_file(self) -> None:
-        """
-        let file manager(editor, viewer) to open the file
-        """
-        self.fileManager._open_file()
-
-
-
-    def replace_char(self, c_old: str, c_new: str, cap: bool = False, tmp: bool = False) -> str:
-        """
-        Replace the character c_old with c_new.
-        Args:
-            c_old (str): the character to be replaced.
-            c_new (str): the character to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-            cap: if true, replace the char and it c_old.Capitalization() with the new c_new
-        Returns:
-            String copy of editied file
-        """
-        return self.fileManager.replace_char(c_old, c_new, tmp=tmp, cap=cap)
-
-
-    def __str__(self):
-        """
-        Return the string of the file.
-        """
-        return self.fileManager.__str__()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        self._open_file()
 
     def _open_file(self) -> None:
         """
         Open a file for editing. you can read, write, delete, and append while opening in that mode.
         """
-        return self.fileManager._open_file()
+        self.fileManager._open_file()
 
-    
     def close(self) -> None:
         """
        Close the file.
@@ -90,7 +46,6 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.save_as(new_name)
 
-    
     def read_first_char(self, tmp=True) -> str:
         """
         Read the first character of the file.
@@ -101,19 +56,7 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.read_first_char(tmp)
 
-    
-    def read_last_char(self, tmp: bool) -> str:
-        """
-        Read the last character of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
-        Returns:
-            str: the first character of the file.
-        """
-        pass
-
-    
-    def read_first_n_chars(self, n: int, tmp: bool) -> str:
+    def read_first_n_chars(self, n: int, tmp: bool = True) -> SubText:
         """
         Read the first n characters of the file.
         Arguments:
@@ -124,23 +67,8 @@ class SimpleFile(FileOpenerABC):
             str: the first n characters of the file.
 
         """
-        pass
+        return self.fileManager.read_first_n_chars(n, tmp)
 
-    
-    def read_last_n_chars(self, n: int, tmp: bool) -> str:
-        """
-        Read the last n characters of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file,
-            if true, it will not.
-            n: number of paragraphs to read from the file.
-        Returns:
-            str: the first n characters of the file.
-
-        """
-        pass
-
-    
     def read_first_word(self, tmp: bool = True, skip_non_char: bool = True) -> str:
         """
         Read the first word of the file.
@@ -149,45 +77,22 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.read_first_word(tmp, skip_non_char)
 
-    
-    def read_last_word(self, tmp: bool) -> str:
-        """
-        Read the last word of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
-        """
-        pass
-
-    
-    def read_first_n_words(self, n: int, tmp: bool) -> str:
+    def read_first_n_words(self, n: int = 0, tmp: bool = True, skip_non_char: bool = False) -> SubText:
         """
         Read the first n words of the file.
         Arguments:
             tmp (bool): if False, it navigates the seek to the beginning of the file,
             if true, it will not.
             n: number of words to read from the file.
+            skip_non_char (bool): ex, word is "Phantom," if True it returns "Phantom" without"," if False,
+            it returns it with ",".
         Returns:
             str: the first n words of the file.
 
         """
-        pass
+        return self.fileManager.read_first_n_words(n, tmp, skip_non_char)
 
-    
-    def read_last_n_words(self, n: int, tmp: bool) -> str:
-        """
-        Read the last n words of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file,
-            if true, it will not.
-            n: number of words to read from the file.
-        Returns:
-            str: the first n words of the file.
-
-        """
-        pass
-
-    
-    def read_first_sentence(self, tmp: bool =  True, contain_ender: bool = True) -> SubText:
+    def read_first_sentence(self, tmp: bool = True, contain_ender: bool = True) -> SubText:
         """
         Read the first sentence of the file.
         The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
@@ -200,22 +105,8 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.read_first_sentence(tmp, contain_ender)
 
-    
-    def read_last_sentence(self, tmp: bool, contain_ender: bool) -> str:
-        """
-        Read the last sentence of the file.
-        The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
-        point(!)
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file.
-            contain_ender (bool): if True, it returns the sentence till ./!/?
-        Returns:
-            str: the first sentence of the file.
-        """
-        pass
 
-    
-    def read_first_n_sentences(self, n: int, tmp: bool) -> str:
+    def read_first_n_sentences(self, n: int = 0, tmp: bool = True, contain_ender: bool = True) -> SubText:
         """
         Read the first n setnences of the file.
         Arguments:
@@ -226,9 +117,8 @@ class SimpleFile(FileOpenerABC):
             str: the first n setnences of the file.
 
         """
-        pass
+        return self.fileManager.read_first_n_sentences(n, tmp, contain_ender)
 
-    
     def read_last_n_sentences(self, n: int, tmp: bool) -> str:
         """
         Read the last n setnences of the file.
@@ -242,7 +132,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def read_first_paragraph(self, tmp: bool = True, contain_ender: bool = True) -> str:
         """
         Read the first paragraph of the file.
@@ -255,7 +144,6 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.read_first_paragraph(tmp, contain_ender)
 
-    
     def read_last_paragraph(self, tmp: bool, contain_ender: bool) -> str:
         """
         Read the last paragraph of the file.
@@ -268,8 +156,7 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
-    def read_first_n_paragraph(self, n: int, tmp: bool) -> str:
+    def read_first_n_paragraph(self, n: int, tmp: bool = True, contain_ender: bool = True) -> SubText:
         """
         Read the first n paragraphs of the file.
         Arguments:
@@ -280,9 +167,8 @@ class SimpleFile(FileOpenerABC):
             str: the first n paragraphs of the file.
 
         """
-        pass
+        return self.fileManager.read_first_n_paragraph(n, tmp, contain_ender)
 
-    
     def read_char_at(self, location: Location):
         """
         Read the character at the given location.
@@ -293,7 +179,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def read_word_at(self, location: Location):
         """
         Read the word at the given location.
@@ -304,7 +189,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def read_sentence_at(self, location: Location):
         """
         Read the sentence at the given location.
@@ -315,7 +199,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def read_paragraph_at(self, location: Location):
         """
         Read the paragraph at the given location.
@@ -326,7 +209,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def read_next_char(self, skip_non_char: bool = False, raise_error: bool = True) -> SubText:
         """
         Get the next character, starting from the current position(which is sepcified by last index it went to)
@@ -335,7 +217,6 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.read_next_char(skip_non_char, raise_error)
 
-    
     def read_last_n_paragraph(self, n: int, tmp: bool) -> str:
         """
         Read the last n paragraphs of the file.
@@ -349,7 +230,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def read(self, start_loc: Location, end_loc: Location):
         """
         Read the text in the file starting from start_loc adn ending at end_loc.
@@ -359,9 +239,7 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
-    
-    def replace_char(self, c_old: str, c_new: str, cap: bool, tmp: bool) -> str:
+    def replace_char(self, c_old: str, c_new: str, cap: bool = False, tmp: bool = False) -> str:
         """
         Replace a character in the file.
         Arguments:
@@ -375,8 +253,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
-    
     def replace_char(self, c_old_loc: Location, c_new: str, cap: bool, tmp: bool) -> str:
         """
         Replace a character in the file.
@@ -391,8 +267,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
-    
     def replace_word(self, word_old: str, word_new: str, tmp: bool) -> str:
         """
         Replace a character in the file.
@@ -406,7 +280,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def replace_word(self, word_old_loc: Location, word_new: str, tmp: bool) -> str:
         """
         Replace a character in the file. it will look forward untill it finds the first " "(space).
@@ -420,7 +293,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def replace_sentence(self, sen_old: str, sen_new: str, tmp: bool) -> str:
         """
         Replace a character in the file.
@@ -434,7 +306,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def replace_sentence(self, sen_old_loc: str, sen_new: str, tmp: bool) -> str:
         """
         Replace a character in the file. it will look forward untill it finds the first "." "!" or "?"
@@ -448,7 +319,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def replace_paragraph(self, par_old: str, par_new: str, tmp: bool) -> str:
         """
         Replace a character in the file.
@@ -462,7 +332,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def replace_paragraph(self, par_old_old: Location, str, par_new: str, tmp: bool) -> str:
         """
         Replace a character in the file., it will look forward untill it finds the first "\n"
@@ -476,7 +345,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str):
         """
         Replace text starting at the given location by loc_start, and ending at the given location by loc_end.
@@ -490,7 +358,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def append(self, text):
         """
         Append text to the end of the file.
@@ -499,8 +366,8 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
-    def read_next_word(self, skip_non_char: bool = True, raise_error: bool = False, start_new_word: bool = True) -> SubText:
+    def read_next_word(self, skip_non_char: bool = True, raise_error: bool = False,
+                       start_new_word: bool = True) -> SubText:
         """
         Get the next word, starting from the current position(which is sepcified by last index it went to)
         Args:
@@ -512,7 +379,6 @@ class SimpleFile(FileOpenerABC):
 
         """
         return self.fileManager.read_next_word(skip_non_char, raise_error, start_new_word)
-
 
     def read_next_sentence(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
@@ -527,7 +393,6 @@ class SimpleFile(FileOpenerABC):
        """
         pass
 
-    
     def read_next_paragraph(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
        Get the next paragraph, starting from the current position(which is sepcified by last index it went to)
@@ -541,7 +406,6 @@ class SimpleFile(FileOpenerABC):
        """
         pass
 
-    
     def delete_char_at(self, loc: Location, tmp: bool) -> SubText:
         """
         Delete the character at given location.
@@ -550,7 +414,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def delete_word_at(self, loc: Location, tmp: bool) -> SubText:
         """
         Delete the word at given location.
@@ -559,7 +422,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def delete_sentence_at(self, loc: Location, tmp: bool) -> SubText:
         """
         Delete the sentence at given location.
@@ -568,7 +430,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def delete_paragraph_at(self, loc: Location, tmp: bool) -> SubText:
         """
         Delete the paragraph at given location.
@@ -577,7 +438,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def delete(self, start_loc: Location, end_loc: Location, tmp: bool) -> SubText:
         """
         Delete the text between start_loc and end_loc.
@@ -646,7 +506,6 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-    
     def capitalize_start_paragraph(self, tmp: bool) -> SubText:
         """
         capitiliza the start of each paragraph
@@ -733,4 +592,8 @@ class SimpleFile(FileOpenerABC):
         """
         pass
 
-
+    def __str__(self):
+        """
+        Return the string of the file.
+        """
+        return self.fileManager.__str__()

@@ -44,7 +44,7 @@ class FileOpenerABC(ABC):
                                   ", The problem might be that you haven't given the complete path for the new created file")
 
     @abstractmethod
-    def read_first_char(self, tmp: bool) -> str:
+    def read_first_char(self, tmp: bool) -> SubText:
         """
         Read the first character of the file.
         Arguments:
@@ -55,34 +55,9 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def read_last_char(self, tmp: bool) -> str:
-        """
-        Read the last character of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
-        Returns:
-            str: the first character of the file.
-        """
-        pass
-
-    @abstractmethod
-    def read_first_n_chars(self, n: int, tmp: bool) -> str:
+    def read_first_n_chars(self, n: int, tmp: bool) -> SubText:
         """
         Read the first n characters of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file,
-            if true, it will not.
-            n: number of paragraphs to read from the file.
-        Returns:
-            str: the first n characters of the file.
-
-        """
-        pass
-
-    @abstractmethod
-    def read_last_n_chars(self, n: int, tmp: bool) -> str:
-        """
-        Read the last n characters of the file.
         Arguments:
             tmp (bool): if False, it navigates the seek to the beginning of the file,
             if true, it will not.
@@ -103,59 +78,25 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def read_last_word(self, tmp: bool) -> str:
-        """
-        Read the last word of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file, if true, it will not.
-        """
-        pass
-
-    @abstractmethod
-    def read_first_n_words(self, n: int, tmp: bool) -> str:
+    def read_first_n_sentences(self, n: int, tmp: bool, contain_ender: bool) -> SubText:
         """
         Read the first n words of the file.
         Arguments:
             tmp (bool): if False, it navigates the seek to the beginning of the file,
             if true, it will not.
             n: number of words to read from the file.
+            skip_non_char (bool): ex, word is "Phantom," if True it returns "Phantom" without"," if False,
+            it returns it with ",".
         Returns:
             str: the first n words of the file.
 
         """
-        pass
 
-    @abstractmethod
-    def read_last_n_words(self, n: int, tmp: bool) -> str:
-        """
-        Read the last n words of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file,
-            if true, it will not.
-            n: number of words to read from the file.
-        Returns:
-            str: the first n words of the file.
 
-        """
-        pass
     @abstractmethod
     def read_first_sentence(self, tmp: bool, contain_ender: bool) -> str:
         """
         Read the first sentence of the file.
-        The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
-        point(!)
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file.
-            contain_ender (bool): if True, it returns the sentence till ./!/?
-        Returns:
-            str: the first sentence of the file.
-        """
-        pass
-
-    @abstractmethod
-    def read_last_sentence(self, tmp: bool, contain_ender: bool) -> str:
-        """
-        Read the last sentence of the file.
         The end of a complete sentence should be marked by a period(.), a question mark(?) or an exclamation
         point(!)
         Arguments:
@@ -181,20 +122,6 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def read_last_n_sentences(self, n: int, tmp: bool) -> str:
-        """
-        Read the last n setnences of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file,
-            if true, it will not.
-            n: number of setnences to read from the file.
-        Returns:
-            str: the first n setnences of the file.
-
-        """
-        pass
-
-    @abstractmethod
     def read_first_paragraph(self, tmp: bool, contain_ender: bool) -> str:
         """
         Read the first paragraph of the file.
@@ -207,21 +134,9 @@ class FileOpenerABC(ABC):
         """
         pass
 
-    @abstractmethod
-    def read_last_paragraph(self, tmp: bool, contain_ender: bool) -> str:
-        """
-        Read the last paragraph of the file.
-        Paragraph must have \n at last
-        Args:
-            tmp (bool): if False, it navigates the seek to the beginning of the file.
-            contain_ender (bool): if True, it returns the sentence till \n.
-        Returns:
-            str: the first paragraph of the file.
-        """
-        pass
 
     @abstractmethod
-    def read_first_n_paragraph(self, n: int, tmp: bool) -> str:
+    def read_first_n_paragraph(self, n: int, tmp: bool, contain_ender: bool) -> SubText:
         """
         Read the first n paragraphs of the file.
         Arguments:
