@@ -150,7 +150,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def read_char_at(self, location: Location):
+    def read_char_at(self, location: Location) -> SubText:
         """
         Read the character at the given location.
         Arguments:
@@ -161,7 +161,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def read_word_at(self, location: Location):
+    def read_word_at(self, loc: Location, skip_non_char: bool,  tmp: bool ) -> SubText:
         """
         Read the word at the given location.
         Arguments:
@@ -172,7 +172,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def read_sentence_at(self, location: Location):
+    def read_sentence_at(self, loc: Location, contain_ender: bool, tmp: bool):
         """
         Read the sentence at the given location.
         Arguments:
@@ -183,7 +183,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def read_paragraph_at(self, location: Location):
+    def read_paragraph_at(self, loc: Location, tmp: bool, contain_ender: bool):
         """
         Read the paragraph at the given location.
         Arguments:
@@ -199,19 +199,6 @@ class FileOpenerABC(ABC):
         Get the next character, starting from the current position(which is sepcified by last index it went to)
         Args:
             None
-        """
-        pass
-    @abstractmethod
-    def read_last_n_paragraph(self, n: int, tmp: bool) -> str:
-        """
-        Read the last n paragraphs of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file,
-            if true, it will not.
-            n: number of paragraphs to read from the file.
-        Returns:
-            str: the first n paragraphs of the file.
-
         """
         pass
 

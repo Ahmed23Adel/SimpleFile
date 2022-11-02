@@ -3,7 +3,7 @@ from location_abs import *
 
 class LocationIndex(LocationAbs):
 
-    def __init__(self, index: int = 0) -> None:
+    def __init__(self, index: int) -> None:
         """
         Specifies the location by index. it encapsulates some relevant functions for simple movement in the file.
         Args:
@@ -72,6 +72,7 @@ class LocationIndex(LocationAbs):
     def is_fil_ended(self, file_length: int) -> bool:
 
         return self.index == file_length
+
 
     def __str__(self) -> str:
         """

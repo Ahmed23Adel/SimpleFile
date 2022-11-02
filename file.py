@@ -169,7 +169,7 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.read_first_n_paragraph(n, tmp, contain_ender)
 
-    def read_char_at(self, location: Location):
+    def read_char_at(self, loc: Location, tmp: bool = True):
         """
         Read the character at the given location.
         Arguments:
@@ -177,9 +177,9 @@ class SimpleFile(FileOpenerABC):
         Returns:
             str: the character at the given location.
         """
-        pass
+        return self.fileManager.read_char_at(tmp, loc)
 
-    def read_word_at(self, location: Location):
+    def read_word_at(self, loc: Location, skip_non_char: bool = False,  tmp: bool = True):
         """
         Read the word at the given location.
         Arguments:
@@ -187,9 +187,9 @@ class SimpleFile(FileOpenerABC):
         Returns:
             str: the character at the given location.
         """
-        pass
+        return self.fileManager.read_word_at(loc, skip_non_char, tmp)
 
-    def read_sentence_at(self, location: Location):
+    def read_sentence_at(self, loc: Location, contain_ender: bool = True, tmp: bool = True) ->SubText:
         """
         Read the sentence at the given location.
         Arguments:
@@ -197,9 +197,9 @@ class SimpleFile(FileOpenerABC):
         Returns:
             str: the character at the given location.
         """
-        pass
+        return self.fileManager.read_sentence_at(loc, contain_ender, tmp)
 
-    def read_paragraph_at(self, location: Location):
+    def read_paragraph_at(self, loc: Location, tmp: bool = True, contain_ender: bool = True) ->SubText:
         """
         Read the paragraph at the given location.
         Arguments:
@@ -207,7 +207,7 @@ class SimpleFile(FileOpenerABC):
         Returns:
             str: the character at the given location.
         """
-        pass
+        return self.fileManager.read_paragraph_at(loc, tmp, contain_ender)
 
     def read_next_char(self, skip_non_char: bool = False, raise_error: bool = True) -> SubText:
         """
@@ -237,7 +237,7 @@ class SimpleFile(FileOpenerABC):
             start_loc (Location): the start location of the file.
             end_loc (Location): the end location of the file.
         """
-        pass
+        return self.fileManager.read(start_loc, end_loc)
 
     def replace_char(self, c_old: str, c_new: str, cap: bool = False, tmp: bool = False) -> str:
         """

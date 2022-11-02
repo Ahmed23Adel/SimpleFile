@@ -2,6 +2,16 @@ from file_abs import *
 from typing import Tuple
 
 
+# TODO 1- Make the reading more robust if the file has nor more content, and test it
+# TODO 2- make sure about comments are up to dated and well representative
+# TODO 3- make sure about the default values in the file
+# TODO 4- test save as on MacOS and Linux
+# TODO 5- rearrange the code suce that all important functions are at
+#        the top fo the file, and functoin that start with __, put it at the end
+# TODO 6- combine read_xxx and read_xxx_at together
+# TODO 7- make sure about raise
+# TODO 8- make sure that end_loc > start_loc
+
 class FileReader(FileOpenerABC):
 
     def __init__(self, file_loc: str):
@@ -72,7 +82,7 @@ class FileReader(FileOpenerABC):
 
         """
         c = self._file.read(n)
-        return SubText(SubTextKind.CHAR, c, loc_start=LocationIndex(1), loc_end=LocationIndex(2))
+        return SubText(SubTextKind.CHAR, c, loc_start=LocationIndex(0), loc_end=LocationIndex(n))
 
     def read_first_word(self, tmp: bool, skip_non_char: bool) -> SubText:
         """
@@ -223,7 +233,7 @@ class FileReader(FileOpenerABC):
             if counter_sentences == n:
                 final_n_sens = "".join(sentence_lst)
                 final_n_sens = final_n_sens[: -1 if contain_ender else -2]
-                return SubText(SubTextKind.SENTENCE, final_n_sens, LocationIndex(0), LocationIndex(len(final_n_sens)) )
+                return SubText(SubTextKind.SENTENCE, final_n_sens, LocationIndex(0), LocationIndex(len(final_n_sens)))
         raise EOFError("Couldn't not find \".\" nor \"?\" nor \"!\" ")
 
     def __is_sentence(self, s: str) -> Tuple:
@@ -310,10 +320,11 @@ class FileReader(FileOpenerABC):
             return self.__perform_read_first_tmp(self.__read_first_n_paragraph, n, contain_ender)
         return self.__perform_read_first_perm(self.__read_first_n_paragraph, n, contain_ender)
 
-    def __read_first_n_paragraph(self, n: int, contain_ender: bool) -> SubText:
+    def __read_first_n_paragraph(self, n: int,
+                                 contain_ender: bool) -> SubText:  # TODO: put the logic of both read_first_n_pars and read_first_n_sentences into one functoin
         sentence_lst = []
         par_lst = []
-        par_counter =0
+        par_counter = 0
         while True:
             try:
                 line = next(iter(self._file))
@@ -336,7 +347,7 @@ class FileReader(FileOpenerABC):
 
         raise ValueError("Couldn't find paragraph")
 
-    def read_char_at(self, location: Location):
+    def read_char_at(self, tmp: bool, loc: Location) -> SubText:
         """
         Read the character at the given location.
         Arguments:
@@ -344,9 +355,16 @@ class FileReader(FileOpenerABC):
         Returns:
             str: the character at the given location.
         """
-        pass
+        if tmp:
+            return self.__perform_read_at_tmp(loc, self.__read_char_at, loc)
+        else:
+            return self.__perform_read_at_perm(loc, self.__read_char_at, loc)
 
-    def read_word_at(self, location: Location):
+    def __read_char_at(self, loc: Location) -> SubText:
+        c = self._file.read(1)
+        return SubText(SubTextKind.CHAR, c, loc_start=LocationIndex(loc.index), loc_end=LocationIndex(loc.index + 1))
+
+    def read_word_at(self, loc: Location, skip_non_char: bool, tmp: bool) -> SubText:
         """
         Read the word at the given location.
         Arguments:
@@ -354,9 +372,21 @@ class FileReader(FileOpenerABC):
         Returns:
             str: the character at the given location.
         """
-        pass
+        # return self.__read_word_at(loc, skip_non_char)
+        if tmp:
+            return self.__perform_read_at_tmp(loc, self.__read_word_at, loc, skip_non_char)
+        else:
+            return self.__perform_read_at_perm(loc, self.__read_char_at, loc, skip_non_char)
 
-    def read_sentence_at(self, location: Location):
+    def __read_word_at(self, loc: Location, skip_non_char: bool):
+        first_line = next(iter(self._file))
+        first_word = first_line.split(" ")[0]
+        while skip_non_char and not first_word[-1].isalpha():
+            first_word = first_word[:-1]
+        return SubText(SubTextKind.WORD, first_word, LocationIndex(loc.index),
+                       LocationIndex(loc.index + len(first_word)))
+
+    def read_sentence_at(self, loc: Location, contain_ender: bool, tmp: bool) -> SubText:
         """
         Read the sentence at the given location.
         Arguments:
@@ -364,9 +394,30 @@ class FileReader(FileOpenerABC):
         Returns:
             str: the character at the given location.
         """
-        pass
+        if tmp:
+            return self.__perform_read_at_tmp(loc, self.__read_sentence_at, loc, contain_ender)
+        else:
+            return self.__perform_read_at_perm(loc, self.__read_sentence_at, loc, contain_ender)
 
-    def read_paragraph_at(self, location: Location):
+    def __read_sentence_at(self, loc: Location, contain_ender: bool):
+        line_lst = []
+        while True:
+            try:
+                line = next(iter(self._file))
+            except:
+                break
+            is_sentence, i = self.__is_sentence(line)
+            if is_sentence:
+                sentence = line[:i + 1 if contain_ender else i]
+                line_lst.append(sentence)
+                fina_sentence = "".join(line_lst)
+                return SubText(SubTextKind.SENTENCE, fina_sentence, LocationIndex(loc.index),
+                               LocationIndex(loc.index+ len(fina_sentence)))
+            else:
+                line_lst.append(line)
+        raise EOFError("Couldn't not find \".\" nor \"?\" nor \"!\" ")
+
+    def read_paragraph_at(self, loc: Location, tmp: bool, contain_ender: bool) -> SubText:
         """
         Read the paragraph at the given location.
         Arguments:
@@ -374,7 +425,28 @@ class FileReader(FileOpenerABC):
         Returns:
             str: the character at the given location.
         """
-        pass
+        if tmp:
+            return self.__perform_read_at_tmp(loc, self.__read_paragraph_at, loc, contain_ender)
+        else:
+            return self.__perform_read_at_perm(loc, self.__read_paragraph_at, loc, contain_ender)
+
+    def __read_paragraph_at(self, loc: Location, contain_ender: bool):
+        sentence_lst = []
+        while True:
+            try:
+                line = next(iter(self._file))
+            except:
+                break
+            is_paragraph, i = self.__is_paragraph(line)
+            if is_paragraph:
+                sentence_lst.append(line)
+                sentence = "".join(sentence_lst)
+                final_par = sentence[:i + 1 if contain_ender else i]
+                return SubText(SubTextKind.PARAGRAPH, final_par, LocationIndex(loc.index),
+                               LocationIndex(loc.index+len(final_par)))
+            sentence_lst.append(line)
+
+        raise EOFError("Couldn't not find \"\\n\"")
 
     def read_next_char(self, skip_non_char: bool = False, raise_error: bool = True) -> SubText:
         """
@@ -431,19 +503,6 @@ class FileReader(FileOpenerABC):
         self.location.move_by(len(word))
         return SubText(SubTextKind.WORD, word, LocationIndex(init_loc), LocationIndex(init_loc + len(word)))
 
-    def read_last_n_paragraph(self, n: int, tmp: bool) -> str:
-        """
-        Read the last n paragraphs of the file.
-        Arguments:
-            tmp (bool): if False, it navigates the seek to the beginning of the file,
-            if true, it will not.
-            n: number of paragraphs to read from the file.
-        Returns:
-            str: the first n paragraphs of the file.
-
-        """
-        pass
-
     def read(self, start_loc: Location, end_loc: Location):
         """
         Read the text in the file starting from start_loc adn ending at end_loc.
@@ -451,7 +510,10 @@ class FileReader(FileOpenerABC):
             start_loc (Location): the start location of the file.
             end_loc (Location): the end location of the file.
         """
-        pass
+        start_loc.guide_me(self._file)
+        output = self._file.read(end_loc.index - start_loc.index)
+        self.location.guide_me(self._file)
+        return output
 
     def __perform_read_first_tmp(self, func, *args, **kwargs) -> SubText:
         """
@@ -479,6 +541,18 @@ class FileReader(FileOpenerABC):
         self.location.move_me_perm(self._file, 0)
         op = func(*args, **kwargs)
         self.location.move_to(len(op) + 1)
+        return op
+
+    def __perform_read_at_tmp(self, loc, func, *args, **kwargs) -> SubText:
+        loc.guide_me(self._file)
+        op = func(*args, **kwargs)
+        self.location.guide_me(self._file)
+        return op
+
+    def __perform_read_at_perm(self, loc: LocationIndex, func, *args, **kwargs) -> SubText:
+        loc.guide_me(self._file)
+        op = func(*args, **kwargs)
+        self.location.move_to(loc.index)
         return op
 
     def replace_char(self, c_old: str, c_new: str, cap: bool, tmp: bool) -> str:
@@ -640,7 +714,7 @@ class FileReader(FileOpenerABC):
         Arguments:
             loc (Location): the location of the paragraph to be deleted
         """
-        pass
+        raise ValueError("This operation is not supported in reader mode")
 
     def delete_word_at(self, loc: Location, tmp: bool) -> SubText:
         """
