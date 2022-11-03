@@ -555,7 +555,7 @@ class FileReader(FileOpenerABC):
         self.location.move_to(loc.index)
         return op
 
-    def replace_char(self, c_old: str, c_new: str, cap: bool, tmp: bool) -> str:
+    def replace_char(self, c_old: str, c_new: str, cap: bool, tmp: bool) -> SubText:
         """
         Replace a character in the file.
         Arguments:
@@ -567,13 +567,19 @@ class FileReader(FileOpenerABC):
             str: the replaced string.
 
         """
-        raise TypeError("Replacing is not allowed while using Reader model")
+        if len(c_old) > 1 or len(c_new) > 1:
+            raise TypeError("Your input has more than just one char, if it's the case; please consider using "
+                            "replace_word() func")
+        if tmp:
+            return self.__perform_update(self.__replace_char_tmp, c_old, c_new, cap)
+        else:
+            raise TypeError("This operation is not supported in this mode")
 
-    def replace_char(self, c_old_loc: Location, c_new: str, cap: bool, tmp: bool) -> str:
+    def replace_char_at(self, c_old_loc: Location, c_new: str, tmp: bool) -> SubText:
         """
         Replace a character in the file.
         Arguments:
-            c_old_loc (str): location at which you want to replace the char there with the c_new.
+            c_old (str): the character to be replaced.
             c_new (str): the character to replace it with.
             tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
             cap: if true, replace the char and it c_old.Capitalization() with the new c_new
@@ -581,87 +587,51 @@ class FileReader(FileOpenerABC):
             str: the replaced string.
 
         """
-        pass
+        if len(c_new) > 1:
+            raise TypeError("Your input has more than just one char, if it's the case; please consider using "
+                            "replace_word() func")
+        if tmp:
+            return self.__perform_update(self.__replace_char_tmp_at, c_old_loc, c_new)
+        else:
+            raise TypeError("This operation is not supported in this mode")
 
-    def replace_word(self, word_old: str, word_new: str, tmp: bool) -> str:
+    def __replace_char_tmp(self, c_old, c_new, cap) -> SubText:
         """
-        Replace a character in the file.
-        Arguments:
-            word_old (str): the word to be replaced.
-            word_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
+       Replace the character c_old with c_new, and return the edited string; withoug editing the file itself.
+       Args:
+           c_old (str): the character to be replaced.
+           c_new (str): the character to replace it with.
+           tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
+           cap: if true, replace the char and it c_old.Capitalization() with the new c_new
         """
-        pass
+        content = self._file.read()
+        if cap:
+            content_new = content.replace(c_old, c_new)
+            content_new = content_new.replace(c_old.capitalize(), c_new)
+        else:
+            content_new = content.replace(c_old, c_new)
+        self.location.guide_me(self._file)
+        return content_new
 
-    def replace_word(self, word_old_loc: Location, word_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file. it will look forward untill it finds the first " "(space).
-        Arguments:
-            word_old_loc (str): location at which you want to replace the char there with the word_old.
-            word_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
+    def __replace_char_tmp_at(self, c_old_loc: Location, c_new: str) -> SubText:
+        content = self._file.read()
+        content_lst = list(content)
+        content_lst[c_old_loc.index] = c_new
+        content_new = "".join(content_lst)
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), len(self.content))
 
-        """
-        pass
+    def replace(self, text_old: str, text_new: str, tmp: bool) -> SubText:
+        if tmp:
+            return self.__perform_update(self.__replace, text_old, text_new)
+        else:
+            raise ValueError("This operation is not supported in Reader mode")
 
-    def replace_sentence(self, sen_old: str, sen_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file.
-        Arguments:
-            sen_old (str): the sentence to be replaced.
-            sen_new (str): the sentence to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
+    def __replace(self, text_old, text_new):
+        content = self._file.read()
+        content_new = content.replace(text_old, text_new)
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
 
-        """
-        pass
-
-    def replace_sentence(self, sen_old_loc: str, sen_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file. it will look forward untill it finds the first "." "!" or "?"
-        Arguments:
-            sen_old_loc (str): location at which you want to replace the char there with the sen_old.
-            sen_new (str): the sentence to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    def replace_paragraph(self, par_old: str, par_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file.
-        Arguments:
-            par_old (str): the word to be replaced.
-            sen_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    def replace_paragraph(self, par_old_old: Location, str, par_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file., it will look forward untill it finds the first "\n"
-        Arguments:
-            par_old_old (str):  location at which you want to replace the char there with the par_old.
-            sen_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str):
+    def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str, tmp: bool):
         """
         Replace text starting at the given location by loc_start, and ending at the given location by loc_end.
         Arguments:
@@ -672,15 +642,33 @@ class FileReader(FileOpenerABC):
             str: the replaced string.
 
         """
-        pass
+        if tmp:
+            return self.__perform_update(self.__replace_by_loc, loc_start, loc_end, new_text)
+        else:
+            raise ValueError("This operation is not supported in Reader mode")
 
-    def append(self, text):
+    def __replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str) -> SubText:
+        content = self._file.read()
+        content_lst = list(content)
+        content_lst[loc_start.index: loc_end.index] = new_text
+        content_new = "".join(content_lst)
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), len(self.content))
+
+    def append(self, text, tmp: bool):
         """
         Append text to the end of the file.
         Arguments:
             text (str): the text to append.
         """
-        pass
+        if tmp:
+            return self.__perform_update(self.__append, text)
+        else:
+            raise ValueError("This operation is not supported in Reader mode")
+
+    def __append(self, text):
+        content = self._file.read()
+        content_new = content + text
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
 
     def read_next_sentence(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
         """
@@ -899,3 +887,33 @@ class FileReader(FileOpenerABC):
 
     def __file_ended_raise(self) -> SubText:
         raise ValueError("File ended")
+
+    def __perform_update(self, func, *args, **kwargs) -> str:
+        """
+        For updating the file, the seek must be at 0 for reading it, so call this wrapper for doing that, and it shall
+        call the function that updates the file
+        Args:
+            func (function): the function to be called.
+            *args: the arguments to be passed to the function.
+        Returns:
+            return the string returned by the function
+        """
+        self.location.move_me_to_beg(self._file)
+        op = func(*args, **kwargs)
+        self.location.guide_me(self._file)
+        return op
+
+    def __perform_update(self, func, *args, **kwargs) -> SubText:
+        """
+        For updating the file, the seek must be at 0 for reading it, so call this wrapper for doing that, and it shall
+        call the function that updates the file
+        Args:
+            func (function): the function to be called.
+            *args: the arguments to be passed to the function.
+        Returns:
+            return the string returned by the function
+        """
+        self.location.move_me_to_beg(self._file)
+        op = func(*args, **kwargs)
+        self.location.guide_me(self._file)
+        return op

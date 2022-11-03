@@ -1,7 +1,12 @@
 from file import *
 from basic_func import *
-f = SimpleFile(r"/Users/ahmed/Documents/Self/simpleFile/SimpleFile/sample.txt", open_mode = OpenMode.READ)
-print(f.read(LocationIndex(5), LocationIndex(10)))
+f = SimpleFile(r"/Users/ahmed/Documents/Self/simpleFile/SimpleFile/sample-c.txt", open_mode = OpenMode.READ)
+print(f.append("Naeem"))
+# print(f.replace_by_loc(LocationIndex(1), LocationIndex(3),"IOUuuuu"))
+# print(f.replace_char_at(LocationIndex(0), "z"))
+# print(f.replace("Ahmed","Yousef"))
+# print(f.read(LocationIndex(5), LocationIndex(10)))
+# print(f.replace_char("a","z",cap = False))
 # at = LocationIndex(index=10)
 # print(f.read_char_at(at))
 # print(f.read_word_at(LocationIndex(9)))

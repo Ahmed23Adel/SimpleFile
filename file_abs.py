@@ -211,9 +211,9 @@ class FileOpenerABC(ABC):
             end_loc (Location): the end location of the file.
         """
         pass
+
     @abstractmethod
-    @overload
-    def replace_char(self, c_old: str, c_new: str, cap: bool, tmp: bool) -> str:
+    def replace_char(self, c_old: str, c_new: str, cap: bool, tmp: bool) -> SubText:
         """
         Replace a character in the file.
         Arguments:
@@ -228,12 +228,11 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    @overload
-    def replace_char(self, c_old_loc: Location,c_new: str, cap: bool, tmp: bool) -> str:
+    def replace_char_at(self, c_old_loc: Location, c_new: str, tmp: bool) -> SubText:
         """
         Replace a character in the file.
         Arguments:
-            c_old_loc (str): location at which you want to replace the char there with the c_new.
+            c_old (str): the character to be replaced.
             c_new (str): the character to replace it with.
             tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
             cap: if true, replace the char and it c_old.Capitalization() with the new c_new
@@ -244,93 +243,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    @overload
-    def replace_word(self, word_old: str, word_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file.
-        Arguments:
-            word_old (str): the word to be replaced.
-            word_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    @abstractmethod
-    @overload
-    def replace_word(self, word_old_loc: Location, word_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file. it will look forward untill it finds the first " "(space).
-        Arguments:
-            word_old_loc (str): location at which you want to replace the char there with the word_old.
-            word_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    @abstractmethod
-    @overload
-    def replace_sentence(self, sen_old: str, sen_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file.
-        Arguments:
-            sen_old (str): the sentence to be replaced.
-            sen_new (str): the sentence to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    @abstractmethod
-    @overload
-    def replace_sentence(self, sen_old_loc: str, sen_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file. it will look forward untill it finds the first "." "!" or "?"
-        Arguments:
-            sen_old_loc (str): location at which you want to replace the char there with the sen_old.
-            sen_new (str): the sentence to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    @abstractmethod
-    @overload
-    def replace_paragraph(self, par_old: str, par_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file.
-        Arguments:
-            par_old (str): the word to be replaced.
-            sen_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    @abstractmethod
-    @overload
-    def replace_paragraph(self, par_old_old: Location, str, par_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file., it will look forward untill it finds the first "\n"
-        Arguments:
-            par_old_old (str):  location at which you want to replace the char there with the par_old.
-            sen_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
+    def replace(self, text_old: str, text_new: str, tmp: bool) -> SubText:
         pass
 
     @abstractmethod
@@ -348,7 +261,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def append(self, text):
+    def append(self, text, tmp: bool):
         """
         Append text to the end of the file.
         Arguments:

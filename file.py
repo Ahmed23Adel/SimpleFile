@@ -239,7 +239,7 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.read(start_loc, end_loc)
 
-    def replace_char(self, c_old: str, c_new: str, cap: bool = False, tmp: bool = False) -> str:
+    def replace_char(self, c_old: str, c_new: str, cap: bool = False, tmp: bool = True) -> SubText:
         """
         Replace a character in the file.
         Arguments:
@@ -251,13 +251,13 @@ class SimpleFile(FileOpenerABC):
             str: the replaced string.
 
         """
-        pass
+        return self.fileManager.replace_char(c_old, c_new, cap, tmp)
 
-    def replace_char(self, c_old_loc: Location, c_new: str, cap: bool, tmp: bool) -> str:
+    def replace_char_at(self, c_old_loc: Location, c_new: str, tmp: bool = True) -> SubText:
         """
         Replace a character in the file.
         Arguments:
-            c_old_loc (str): location at which you want to replace the char there with the c_new.
+            c_old (str): the character to be replaced.
             c_new (str): the character to replace it with.
             tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
             cap: if true, replace the char and it c_old.Capitalization() with the new c_new
@@ -265,87 +265,12 @@ class SimpleFile(FileOpenerABC):
             str: the replaced string.
 
         """
-        pass
+        return self.fileManager.replace_char_at(c_old_loc, c_new, tmp)
 
-    def replace_word(self, word_old: str, word_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file.
-        Arguments:
-            word_old (str): the word to be replaced.
-            word_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
+    def replace(self, text_old: str, text_new: str, tmp: bool = True) -> SubText:
+        return self.fileManager.replace(text_old, text_new, tmp)
 
-        """
-        pass
-
-    def replace_word(self, word_old_loc: Location, word_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file. it will look forward untill it finds the first " "(space).
-        Arguments:
-            word_old_loc (str): location at which you want to replace the char there with the word_old.
-            word_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    def replace_sentence(self, sen_old: str, sen_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file.
-        Arguments:
-            sen_old (str): the sentence to be replaced.
-            sen_new (str): the sentence to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    def replace_sentence(self, sen_old_loc: str, sen_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file. it will look forward untill it finds the first "." "!" or "?"
-        Arguments:
-            sen_old_loc (str): location at which you want to replace the char there with the sen_old.
-            sen_new (str): the sentence to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    def replace_paragraph(self, par_old: str, par_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file.
-        Arguments:
-            par_old (str): the word to be replaced.
-            sen_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    def replace_paragraph(self, par_old_old: Location, str, par_new: str, tmp: bool) -> str:
-        """
-        Replace a character in the file., it will look forward untill it finds the first "\n"
-        Arguments:
-            par_old_old (str):  location at which you want to replace the char there with the par_old.
-            sen_new (str): the word to replace it with.
-            tmp (bool): if true, it replaces the character in the file, if False, returns a copy of new string without replacing it in the file
-        Returns:
-            str: the replaced string.
-
-        """
-        pass
-
-    def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str):
+    def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str, tmp: bool = True):
         """
         Replace text starting at the given location by loc_start, and ending at the given location by loc_end.
         Arguments:
@@ -356,15 +281,15 @@ class SimpleFile(FileOpenerABC):
             str: the replaced string.
 
         """
-        pass
+        return self.fileManager.replace_by_loc(loc_start, loc_end, new_text, tmp)
 
-    def append(self, text):
+    def append(self, text, tmp: bool = True):
         """
         Append text to the end of the file.
         Arguments:
             text (str): the text to append.
         """
-        pass
+        return self.fileManager.append(text, tmp)
 
     def read_next_word(self, skip_non_char: bool = True, raise_error: bool = False,
                        start_new_word: bool = True) -> SubText:
