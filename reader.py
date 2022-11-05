@@ -11,7 +11,9 @@ from typing import Tuple
 # TODO 6- combine read_xxx and read_xxx_at together
 # TODO 7- make sure about raise
 # TODO 8- make sure that end_loc > start_loc
-
+# TODO 9- raise error in all read_xxx
+# TODO 10- implmenet start_new_word in read_next_xxx
+# TODO 11- think about delete_sentence_at, and delete_paragraph_at
 class FileReader(FileOpenerABC):
 
     def __init__(self, file_loc: str):
@@ -631,7 +633,7 @@ class FileReader(FileOpenerABC):
         content_new = content.replace(text_old, text_new)
         return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
 
-    def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str, tmp: bool):
+    def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str, tmp: bool) -> SubText:
         """
         Replace text starting at the given location by loc_start, and ending at the given location by loc_end.
         Arguments:
@@ -654,7 +656,7 @@ class FileReader(FileOpenerABC):
         content_new = "".join(content_lst)
         return SubText(SubTextKind.FILE, content_new, LocationIndex(0), len(self.content))
 
-    def append(self, text, tmp: bool):
+    def append(self, text, tmp: bool) -> SubText:
         """
         Append text to the end of the file.
         Arguments:
@@ -670,20 +672,40 @@ class FileReader(FileOpenerABC):
         content_new = content + text
         return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
 
-    def read_next_sentence(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
+    def read_next_sentence(self, contain_ender: bool, raise_error: bool, start_new_word: bool, tmp: bool) -> SubText:
         """
        Get the next sentence, starting from the current position(which is sepcified by last index it went to)
        Paragraph must have \n at last
        Args:
-           kip_non_char: if true, the returned string doens't contain "." or "," for exampole. as it sticks
+           contain_ender: if true, the returned string doens't contain "." or "," for exampole. as it sticks
             to the word
             raise_error: if i hit the end of the file, it describes how you should handle it,
              if True: raise an exception
              if False: return SubText() of type file ended
        """
-        pass
+        if tmp:
+            return self.__read_next_sentence(contain_ender, raise_error, start_new_word)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
 
-    def read_next_paragraph(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
+    def __read_next_sentence(self, contain_ender: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
+        line_lst = []
+        while True:
+            try:
+                line = next(iter(self._file))
+            except:
+                break
+            is_sentence, i = self.__is_sentence(line)
+            if is_sentence:
+                sentence = line[:i + 1 if contain_ender else i]
+                line_lst.append(sentence)
+                fina_sentence = "".join(line_lst)
+                return SubText(SubTextKind.SENTENCE, fina_sentence, LocationIndex(0), LocationIndex(len(fina_sentence)))
+            else:
+                line_lst.append(line)
+        raise EOFError("Couldn't not find \".\" nor \"?\" nor \"!\" ")
+
+    def read_next_paragraph(self, contain_ender: bool, raise_error: bool, start_new_word: bool, tmp: bool) -> SubText:
         """
        Get the next paragraph, starting from the current position(which is sepcified by last index it went to)
        Paragraph must have \n at last
@@ -694,7 +716,27 @@ class FileReader(FileOpenerABC):
              if True: raise an exception
              if False: return SubText() of type file ended
        """
-        pass
+        if tmp:
+            return self.__read_next_paragraph(contain_ender, raise_error, start_new_word)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
+
+    def __read_next_paragraph(self, contain_ender: bool, raise_error: bool, start_new_word: bool) -> SubText:
+        sentence_lst = []
+        while True:
+            try:
+                line = next(iter(self._file))
+            except:
+                break
+            is_paragraph, i = self.__is_paragraph(line)
+            if is_paragraph:
+                sentence_lst.append(line)
+                sentence = "".join(sentence_lst)
+                final_par = sentence[:i + 1 if contain_ender else i]
+                return SubText(SubTextKind.PARAGRAPH, final_par, LocationIndex(0), LocationIndex(len(final_par)))
+            sentence_lst.append(line)
+
+        raise EOFError("Couldn't not find \"\\n\"")
 
     def delete_char_at(self, loc: Location, tmp: bool) -> SubText:
         """
@@ -702,7 +744,14 @@ class FileReader(FileOpenerABC):
         Arguments:
             loc (Location): the location of the paragraph to be deleted
         """
-        raise ValueError("This operation is not supported in reader mode")
+        if tmp:
+            return self.__delete_char_at(loc)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
+
+    def __delete_char_at(self, loc):
+        content_new = self.content[:loc.index] + self.content[loc.index+1:]
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), len(content_new))
 
     def delete_word_at(self, loc: Location, tmp: bool) -> SubText:
         """
@@ -710,23 +759,15 @@ class FileReader(FileOpenerABC):
         Arguments:
             loc (Location): the location of the paragraph to be deleted
         """
-        pass
+        if tmp:
+            return self.__delete_word_at(loc)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
 
-    def delete_sentence_at(self, loc: Location, tmp: bool) -> SubText:
-        """
-        Delete the sentence at given location.
-        Arguments:
-            loc (Location): the location of the paragraph to be deleted
-        """
-        pass
-
-    def delete_paragraph_at(self, loc: Location, tmp: bool) -> SubText:
-        """
-        Delete the paragraph at given location.
-        Arguments:
-            loc (Location): the location of the paragraph to be deleted
-        """
-        pass
+    def __delete_word_at(self, loc: Location) -> SubText:
+        first_space = self.content[loc.index:].find(" ") + loc.index
+        content_new = self.content[:loc.index] + self.content[first_space + 1:]
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
 
     def delete(self, start_loc: Location, end_loc: Location, tmp: bool) -> SubText:
         """
@@ -735,21 +776,51 @@ class FileReader(FileOpenerABC):
             start_loc (Location): starting location of the paragraph to be deleted
             end_loc (Location): ending location of the paragraph to be deleted
         """
-        pass
+        if tmp:
+            return self.__delete(start_loc, end_loc)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
+
+    def __delete(self, start_loc: Location, end_loc: Location) -> SubText:
+        content_new = self.content[:start_loc.index] + self.content[end_loc.index + 1:]
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
 
     def apply_on_char(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every char in the file
 
         """
-        pass
+        if tmp:
+            return self.__apply_on_char(func, *args, **kwargs)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
+
+    def __apply_on_char(self, func, *args, **kwargs) -> SubText:
+        content_new = list(self.content)
+        content_new = [func(x, *args, **kwargs) for x in content_new]
+        content_new = "".join(content_new)
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
 
     def apply_on_word(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every word in the file
 
         """
-        pass
+        if tmp:
+            return self.__apply_on_word(func, *args, **kwargs)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
+
+    def __apply_on_word(self, func, *args, **kwargs) -> SubText:
+        words = self._get_all_words()
+        content_new = [func(x, *args, **kwargs) for x in words]
+        content_new = "".join(content_new)
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
+
+    def _get_all_words(self):
+        return self.content.split(" ")
+
+
 
     def apply_on_sentence(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """

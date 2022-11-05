@@ -1,7 +1,17 @@
 from file import *
 from basic_func import *
 f = SimpleFile(r"/Users/ahmed/Documents/Self/simpleFile/SimpleFile/sample-c.txt", open_mode = OpenMode.READ)
-print(f.append("Naeem"))
+def foo(x):
+    if x =="a":
+        return "1"
+    else:
+        return "2"
+print(f.apply_on_word(True, foo))
+# print(f.delete_char_at(LocationIndex(3)))
+# print(f.read_next_paragraph())
+# print(f.read_next_sentence())
+
+# print(f.append("Naeem"))
 # print(f.replace_by_loc(LocationIndex(1), LocationIndex(3),"IOUuuuu"))
 # print(f.replace_char_at(LocationIndex(0), "z"))
 # print(f.replace("Ahmed","Yousef"))

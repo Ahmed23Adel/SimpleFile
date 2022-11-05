@@ -247,7 +247,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str):
+    def replace_by_loc(self, loc_start: Location, loc_end: Location, new_text: str, tmp: bool) -> SubText:
         """
         Replace text starting at the given location by loc_start, and ending at the given location by loc_end.
         Arguments:
@@ -323,24 +323,6 @@ class FileOpenerABC(ABC):
     def delete_word_at(self, loc: Location, tmp: bool) -> SubText:
         """
         Delete the word at given location.
-        Arguments:
-            loc (Location): the location of the paragraph to be deleted
-        """
-        pass
-
-    @abstractmethod
-    def delete_sentence_at(self, loc: Location, tmp: bool) -> SubText:
-        """
-        Delete the sentence at given location.
-        Arguments:
-            loc (Location): the location of the paragraph to be deleted
-        """
-        pass
-
-    @abstractmethod
-    def delete_paragraph_at(self, loc: Location, tmp: bool) -> SubText:
-        """
-        Delete the paragraph at given location.
         Arguments:
             loc (Location): the location of the paragraph to be deleted
         """

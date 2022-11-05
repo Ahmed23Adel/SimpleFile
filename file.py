@@ -305,7 +305,8 @@ class SimpleFile(FileOpenerABC):
         """
         return self.fileManager.read_next_word(skip_non_char, raise_error, start_new_word)
 
-    def read_next_sentence(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
+    def read_next_sentence(self, skip_non_char: bool = False, raise_error: bool = True,
+                           start_new_word: bool = True, tmp: bool = True) -> SubText:
         """
        Get the next sentence, starting from the current position(which is sepcified by last index it went to)
        Paragraph must have \n at last
@@ -316,9 +317,10 @@ class SimpleFile(FileOpenerABC):
              if True: raise an exception
              if False: return SubText() of type file ended
        """
-        pass
+        return self.fileManager.read_next_sentence(skip_non_char, raise_error, start_new_word, tmp)
 
-    def read_next_paragraph(self, skip_non_char: bool, raise_error: bool, start_new_word: bool = True) -> SubText:
+    def read_next_paragraph(self, skip_non_char: bool = True, raise_error: bool = True,
+                            start_new_word: bool = True, tmp: bool = True) -> SubText:
         """
        Get the next paragraph, starting from the current position(which is sepcified by last index it went to)
        Paragraph must have \n at last
@@ -329,62 +331,46 @@ class SimpleFile(FileOpenerABC):
              if True: raise an exception
              if False: return SubText() of type file ended
        """
-        pass
+        return self.fileManager.read_next_paragraph(skip_non_char, raise_error, start_new_word, tmp)
 
-    def delete_char_at(self, loc: Location, tmp: bool) -> SubText:
+    def delete_char_at(self, loc: Location, tmp: bool = True) -> SubText:
         """
         Delete the character at given location.
         Arguments:
             loc (Location): the location of the paragraph to be deleted
         """
-        pass
+        return self.fileManager.delete_char_at(loc, tmp)
 
-    def delete_word_at(self, loc: Location, tmp: bool) -> SubText:
+    def delete_word_at(self, loc: Location, tmp: bool = True) -> SubText:
         """
         Delete the word at given location.
         Arguments:
             loc (Location): the location of the paragraph to be deleted
         """
-        pass
+        return self.fileManager.delete_word_at(loc, tmp)
 
-    def delete_sentence_at(self, loc: Location, tmp: bool) -> SubText:
-        """
-        Delete the sentence at given location.
-        Arguments:
-            loc (Location): the location of the paragraph to be deleted
-        """
-        pass
-
-    def delete_paragraph_at(self, loc: Location, tmp: bool) -> SubText:
-        """
-        Delete the paragraph at given location.
-        Arguments:
-            loc (Location): the location of the paragraph to be deleted
-        """
-        pass
-
-    def delete(self, start_loc: Location, end_loc: Location, tmp: bool) -> SubText:
+    def delete(self, start_loc: Location, end_loc: Location, tmp: bool = True) -> SubText:
         """
         Delete the text between start_loc and end_loc.
         Arguments:
             start_loc (Location): starting location of the paragraph to be deleted
             end_loc (Location): ending location of the paragraph to be deleted
         """
-        pass
+        return  self.fileManager.delete(start_loc, end_loc, tmp)
 
     def apply_on_char(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every char in the file
 
         """
-        pass
+        return self.fileManager.apply_on_char(tmp, func, *args, **kwargs)
 
     def apply_on_word(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every word in the file
 
         """
-        pass
+        return self.fileManager.apply_on_word(tmp, func, *args, **kwargs)
 
     def apply_on_sentence(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
