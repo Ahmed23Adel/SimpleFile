@@ -28,5 +28,14 @@ class Location(object):
         """
         return LocationIndex(index)
 
+    @classmethod
+    def create_by_error(cls, index=0):
+        """
+        Create Location by index
+        :param index:
+        :return:LocationIndex object
+        """
+        return LocationIndex(index)
+
 
             

@@ -1,5 +1,6 @@
 from file_abs import *
 from typing import Tuple
+from collections import defaultdict
 
 
 # TODO 1- Make the reading more robust if the file has nor more content, and test it
@@ -827,21 +828,43 @@ class FileReader(FileOpenerABC):
         apply a function on every sentence in the file
 
         """
-        pass
+        if tmp:
+            return self.__apply_on_sentence(func, *args, **kwargs)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
+
+    def __apply_on_sentence(self, func, *args, **kwargs) -> SubText:
+        sens = self._get_all('(\.|\?|\!)')
+        print(sens)
+        # print(sens)
+        sens = [func(x, *args, **kwargs) for x in sens]
+        content_new = "".join(sens)
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
+
+    def _get_all(self, by: str):
+        import re
+        lst = re.split(by, self.content)
+        return lst
 
     def apply_on_paragraph(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every paragraph in the file
 
         """
-        pass
+        if tmp:
+            return self.__apply_on_paragraph(func, *args, **kwargs)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
 
-    def apply_on_row(self, func, tmp: bool, *args, **kwargs) -> SubText:
-        """
-        apply a function on every row of the file
+    def __apply_on_paragraph(self, func, *args, **kwargs) -> SubText:
+        pars = self._get_all('(\n)')
+        print(pars)
+        # for x in pars:
+        #     x = func(x, *args, **kwargs)
+        pars = [func(x, *args, **kwargs) for x in pars]
+        content_new = "".join(pars)
+        return SubText(SubTextKind.FILE, content_new, LocationIndex(0), LocationIndex(len(content_new)))
 
-        """
-        pass
 
     def turn_all_to_capital(self, tmp: bool) -> SubText:
         """
@@ -849,7 +872,10 @@ class FileReader(FileOpenerABC):
         Returns:
               copy of edited file
         """
-        pass
+        if tmp:
+            return self.apply_on_char(True, str.capitalize )
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
 
     def turn_all_to_small(self, tmp: bool) -> SubText:
         """
@@ -857,15 +883,22 @@ class FileReader(FileOpenerABC):
         Returns:
               copy of edited file
         """
-        pass
+        if tmp:
+            return self.apply_on_char(True, str.lower)
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
 
-    def capitalize_start_sentence(self, tmp: bool) -> SubText:
+    def capitalize_start_sentence(self, tmp: bool) -> SubText: # TODO NOT WORKING; FIX IT
         """
         capitiliza the start of each sentence
         Returns:
               copy of edited file
         """
-        pass
+        if tmp:
+            return self.apply_on_sentence(tmp, self.cap_sent )
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
+
 
     def capitalize_start_paragraph(self, tmp: bool) -> SubText:
         """
@@ -873,25 +906,37 @@ class FileReader(FileOpenerABC):
         Returns:
               copy of edited file
         """
-        pass
+        if tmp:
+            return self.apply_on_paragraph(True, self.cap_sent )
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
 
-    def capitalize_start_sen_par(self, tmp: bool) -> SubText:
+    def cap_sent(self, x):
+        if len(x) == 0:
+            return ""
+        elif len(x) == 1:
+            return x[0].capitalize()
+        else:
+            before = ""
+            start_index = 0
+            while x[start_index] == '\n':
+                start_index += 1
+                before = "\n"
+            return before + x[start_index:start_index + 1].capitalize() + x[start_index + 1:]
+    def turn_to_capital_at(self, loc: Location, tmp: bool) -> SubText:
         """
         capitiliza the start of each sentence and paragraph
         Returns:
               copy of edited file
         """
-        pass
+        if tmp:
+            content_new = self.content
+            content_new = content_new[:loc.index] + content_new[loc.index].capitalize() + content_new[loc.index+1:]
+            return SubText(SubTextKind.FILE, content_new, LocationIndex(loc.index), LocationIndex(len(content_new)))
+        else:
+            raise TypeError("This operation is not supported in Reader mode")
 
-    def turn_to_capital_at(self, at: Location, tmp: bool) -> SubText:
-        """
-        capitiliza the start of each sentence and paragraph
-        Returns:
-              copy of edited file
-        """
-        pass
-
-    def find(self, searchable: bool) -> List:
+    def find(self, searchable: str) -> int:
         """
         Find the first occurrence of the given string in the file.
         if not found it returns -1
@@ -900,9 +945,10 @@ class FileReader(FileOpenerABC):
         Returns:
             location of the first occurrence of the string in the file.
         """
-        pass
 
-    def index(self, searchable: bool) -> List:
+        return self.content.find(searchable)
+
+    def index(self, searchable: bool) -> int:
         """
         Find the first occurrence of the given string in the file.
         like find, but if not found, raises an exception
@@ -911,7 +957,8 @@ class FileReader(FileOpenerABC):
         Returns:
             location of the first occurrence of the string in the file.
         """
-        pass
+        return self.content.index(searchable)
+
 
     def get_one_hot_encoding_chars(self, nmpy: bool, get_lst_of_char: bool) -> List:
         """
@@ -921,9 +968,10 @@ class FileReader(FileOpenerABC):
         Returns:
             Numpy array of
         """
-        pass
+        all_char = set(list(self.content))
 
-    def get_one_hot_encoding_chars_dict(self, nmpy: bool, get_lst_of_char: bool) -> List:
+
+    def get_one_hot_encoding_chars(self) -> defaultdict:
         """
         Get the one-hot encoding of the chars in the file, as dict
         Arguments:
@@ -931,9 +979,13 @@ class FileReader(FileOpenerABC):
         Returns:
             Numpy array of
         """
-        pass
+        all_char = set(list(self.content))
+        result = defaultdict()
+        for char in all_char:
+            result[char] = self.content.count(char)
+        return result
 
-    def get_one_hot_encoding_words(self, nmpy: bool, get_lst_of_char: bool) -> List:
+    def get_one_hot_encoding_words(self) -> List:
         """
         Get the one-hot encoding of the words in the file.
         Arguments:
@@ -941,17 +993,17 @@ class FileReader(FileOpenerABC):
         Returns:
             Numpy array of
         """
-        pass
+        all_char = set(list(self._get_all_words()))
+        result = defaultdict()
+        for char in all_char:
+            result[char] = self.content.count(char)
+        return result
 
-    def get_one_hot_encoding_words_dict(self, nmpy: bool, get_lst_of_char: bool) -> List:
-        """
-        Get the one-hot encoding of the words in the file, as dict
-        Arguments:
-            numpy   (bool): if True returns one hot encoding as numpy array, and chars will be returned as list if get_lst_of_char is True
-        Returns:
-            Numpy array of
-        """
-        pass
+    def contains(self, searchable: str) -> bool:
+        loc = self.find(searchable)
+        if loc == -1:
+            return False
+        return True
 
     def __file_ended_no_raise(self) -> SubText:
         return SubText(SubTextKind.FILE_ENDED)

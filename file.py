@@ -377,71 +377,57 @@ class SimpleFile(FileOpenerABC):
         apply a function on every sentence in the file
 
         """
-        pass
+        return self.fileManager.apply_on_sentence(tmp, func, *args, **kwargs)
 
     def apply_on_paragraph(self, tmp: bool, func, *args, **kwargs) -> SubText:
         """
         apply a function on every paragraph in the file
 
         """
-        pass
+        return self.fileManager.apply_on_paragraph(tmp, func, *args, **kwargs)
 
-    def apply_on_row(self, func, tmp: bool, *args, **kwargs) -> SubText:
-        """
-        apply a function on every row of the file
-
-        """
-        pass
-
-    def turn_all_to_capital(self, tmp: bool) -> SubText:
+    def turn_all_to_capital(self, tmp: bool = True) -> SubText:
         """
         turn all the chars in the file to capital
         Returns:
               copy of edited file
         """
-        pass
+        return self.fileManager.turn_all_to_capital(tmp)
 
-    def turn_all_to_small(self, tmp: bool) -> SubText:
+    def turn_all_to_small(self, tmp: bool = True) -> SubText:
         """
         turn all the chars in the file to capital
         Returns:
               copy of edited file
         """
-        pass
+        return self.fileManager.turn_all_to_small(tmp)
 
-    def capitalize_start_sentence(self, tmp: bool) -> SubText:
+    def capitalize_start_sentence(self, tmp: bool = True) -> SubText:
         """
         capitiliza the start of each sentence
         Returns:
               copy of edited file
         """
-        pass
+        return self.fileManager.capitalize_start_sentence(tmp)
 
-    def capitalize_start_paragraph(self, tmp: bool) -> SubText:
+    def capitalize_start_paragraph(self, tmp: bool = True) -> SubText:
         """
         capitiliza the start of each paragraph
         Returns:
               copy of edited file
         """
-        pass
+        return self.fileManager.capitalize_start_paragraph(tmp)
 
-    def capitalize_start_sen_par(self, tmp: bool) -> SubText:
+
+    def turn_to_capital_at(self, loc: Location, tmp: bool= True) -> SubText:
         """
         capitiliza the start of each sentence and paragraph
         Returns:
               copy of edited file
         """
-        pass
+        return self.fileManager.turn_to_capital_at(loc, tmp)
 
-    def turn_to_capital_at(self, at: Location, tmp: bool) -> SubText:
-        """
-        capitiliza the start of each sentence and paragraph
-        Returns:
-              copy of edited file
-        """
-        pass
-
-    def find(self, searchable: bool) -> List:
+    def find(self, searchable: bool) -> int:
         """
         Find the first occurrence of the given string in the file.
         if not found it returns -1
@@ -450,9 +436,9 @@ class SimpleFile(FileOpenerABC):
         Returns:
             location of the first occurrence of the string in the file.
         """
-        pass
+        return self.fileManager.find(searchable)
 
-    def index(self, searchable: bool) -> List:
+    def index(self, searchable: bool) -> int:
         """
         Find the first occurrence of the given string in the file.
         like find, but if not found, raises an exception
@@ -461,19 +447,8 @@ class SimpleFile(FileOpenerABC):
         Returns:
             location of the first occurrence of the string in the file.
         """
-        pass
-
-    def get_one_hot_encoding_chars(self, nmpy: bool, get_lst_of_char: bool) -> List:
-        """
-        Get the one-hot encoding of the chars in the file.
-        Arguments:
-            numpy   (bool): if True returns one hot encoding as numpy array, and chars will be returned as list if get_lst_of_char is True
-        Returns:
-            Numpy array of
-        """
-        pass
-
-    def get_one_hot_encoding_chars_dict(self, nmpy: bool, get_lst_of_char: bool) -> List:
+        return self.fileManager.index(searchable)
+    def get_one_hot_encoding_chars(self) -> List:
         """
         Get the one-hot encoding of the chars in the file, as dict
         Arguments:
@@ -481,9 +456,9 @@ class SimpleFile(FileOpenerABC):
         Returns:
             Numpy array of
         """
-        pass
+        return self.fileManager.get_one_hot_encoding_chars()
 
-    def get_one_hot_encoding_words(self, nmpy: bool, get_lst_of_char: bool) -> List:
+    def get_one_hot_encoding_words(self) -> List:
         """
         Get the one-hot encoding of the words in the file.
         Arguments:
@@ -491,17 +466,10 @@ class SimpleFile(FileOpenerABC):
         Returns:
             Numpy array of
         """
-        pass
+        return self.fileManager.get_one_hot_encoding_words()
 
-    def get_one_hot_encoding_words_dict(self, nmpy: bool, get_lst_of_char: bool) -> List:
-        """
-        Get the one-hot encoding of the words in the file, as dict
-        Arguments:
-            numpy   (bool): if True returns one hot encoding as numpy array, and chars will be returned as list if get_lst_of_char is True
-        Returns:
-            Numpy array of
-        """
-        pass
+    def contains(self, searchable: str) -> bool:
+        return self.fileManager.contains(searchable)
 
     def __str__(self):
         """

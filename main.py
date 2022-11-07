@@ -1,12 +1,12 @@
 from file import *
 from basic_func import *
-f = SimpleFile(r"/Users/ahmed/Documents/Self/simpleFile/SimpleFile/sample-c.txt", open_mode = OpenMode.READ)
+f = SimpleFile(r"D:\self\SimpleFile\SimpleFile\sample.txt", open_mode = OpenMode.READ)
 def foo(x):
     if x =="a":
         return "1"
     else:
         return "2"
-print(f.apply_on_word(True, foo))
+print(f.contains("issdf"))
 # print(f.delete_char_at(LocationIndex(3)))
 # print(f.read_next_paragraph())
 # print(f.read_next_sentence())

@@ -371,14 +371,6 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def apply_on_row(self, func, tmp: bool, *args, **kwargs) -> SubText:
-        """
-        apply a function on every row of the file
-
-        """
-        pass
-
-    @abstractmethod
     def turn_all_to_capital(self, tmp: bool) -> SubText:
         """
         turn all the chars in the file to capital
@@ -415,15 +407,6 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def capitalize_start_sen_par(self, tmp: bool) -> SubText:
-        """
-        capitiliza the start of each sentence and paragraph
-        Returns:
-              copy of edited file
-        """
-        pass
-
-    @abstractmethod
     def turn_to_capital_at(self, at: Location, tmp: bool) -> SubText:
         """
         capitiliza the start of each sentence and paragraph
@@ -433,7 +416,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def find(self, searchable: bool) -> List:
+    def find(self, searchable: bool) -> int:
         """
         Find the first occurrence of the given string in the file.
         if not found it returns -1
@@ -445,7 +428,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def index(self, searchable: bool) -> List:
+    def index(self, searchable: bool) -> int:
         """
         Find the first occurrence of the given string in the file.
         like find, but if not found, raises an exception
@@ -457,18 +440,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def get_one_hot_encoding_chars(self, nmpy: bool, get_lst_of_char: bool) -> List:
-        """
-        Get the one-hot encoding of the chars in the file.
-        Arguments:
-            numpy   (bool): if True returns one hot encoding as numpy array, and chars will be returned as list if get_lst_of_char is True
-        Returns:
-            Numpy array of
-        """
-        pass
-
-    @abstractmethod
-    def get_one_hot_encoding_chars_dict(self, nmpy: bool, get_lst_of_char: bool) -> List:
+    def get_one_hot_encoding_chars(self) -> List:
         """
         Get the one-hot encoding of the chars in the file, as dict
         Arguments:
@@ -479,7 +451,7 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def get_one_hot_encoding_words(self, nmpy: bool, get_lst_of_char: bool) -> List:
+    def get_one_hot_encoding_words(self) -> List:
         """
         Get the one-hot encoding of the words in the file.
         Arguments:
@@ -490,15 +462,10 @@ class FileOpenerABC(ABC):
         pass
 
     @abstractmethod
-    def get_one_hot_encoding_words_dict(self, nmpy: bool, get_lst_of_char: bool) -> List:
-        """
-        Get the one-hot encoding of the words in the file, as dict
-        Arguments:
-            numpy   (bool): if True returns one hot encoding as numpy array, and chars will be returned as list if get_lst_of_char is True
-        Returns:
-            Numpy array of
-        """
+    def contains(self, searchable):
         pass
+
+
 
 
 
